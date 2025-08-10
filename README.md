@@ -6,4 +6,4 @@ This project is in its *earliest* stage of development.
 Initial focus: basic ingestion, storage and range queries.
 **Not Production Ready!!**
 
-**For The Latest changes checkout the dev branch**
+**For the latest changes checkout the dev branch**
