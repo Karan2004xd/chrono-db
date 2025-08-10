@@ -10,6 +10,8 @@ Data::Data(Data &&other) noexcept : tag_(std::move(other.tag_)), type_(std::move
   data_str_ = std::move(other.data_str_);
   data_double_ = std::move(other.data_double_);
   data_int_ = std::move(other.data_int_);
+
+  other.type_ = {};
 }
 
 auto Data::operator=(const Data &other) -> Data & {
@@ -29,6 +31,8 @@ auto Data::operator=(Data &&other) noexcept -> Data & {
 
   tag_ = std::move(other.tag_);
   type_ = std::move(other.type_);
+
+  other.type_ = {};
   return *this;
 }
 
@@ -61,7 +65,11 @@ auto Data::set_tag(std::string_view tag) noexcept -> void {
   tag_ = tag;
 }
 
-auto Data::reset() noexcept -> void {
+auto Data::reset(bool reset_tag) noexcept -> void {
+  if (reset_tag) {
+    tag_.clear();
+    tag_ = {};
+  }
   reset_base_();
 }
 
@@ -69,4 +77,6 @@ auto Data::reset_base_() noexcept -> void {
   data_str_.reset();
   data_double_.reset();
   data_int_.reset();
+
+  type_ = {};
 }

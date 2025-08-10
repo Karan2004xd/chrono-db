@@ -13,6 +13,7 @@ public:
   using ListOfData = std::unordered_map<std::string, Data>;
   Storage() = default;
 
+  // just testing things out, not final!!
   auto store(int64_t timestamp, std::vector<Data> data) noexcept -> void;
   auto get_data(int64_t timestamp) const noexcept 
     -> std::optional<std::reference_wrapper<const ListOfData>>;

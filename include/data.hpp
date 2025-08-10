@@ -1,9 +1,14 @@
 #pragma once
 
+#include "constant.hpp"
+#include <cassert>
+#include <cmath>
 #include <memory>
 #include <optional>
 
 class Data {
+  TEST_FRIEND(DataTest);
+
 public:
   enum class DataType {
     INTEGER, // 1
@@ -36,7 +41,7 @@ public:
   auto get_tag() const noexcept -> const std::string &;
 
   auto set_tag(std::string_view tag) noexcept -> void;
-  auto reset() noexcept -> void;
+  auto reset(bool reset_tag) noexcept -> void;
 
 private:
   std::unique_ptr<std::string> data_str_ = nullptr;
@@ -44,7 +49,7 @@ private:
   std::unique_ptr<int64_t> data_int_ = nullptr;
 
   std::string tag_;
-  DataType type_;
+  DataType type_ {};
 
 
   template <typename T>
@@ -71,6 +76,8 @@ private:
 
     } else if constexpr (std::is_same_v<decayed_t, double> ||
                          std::is_same_v<decayed_t, float>) {
+      assert(!std::isnan(value));
+
       data_double_ = std::make_unique<double>(static_cast<double>(value));
       type_ = DataType::DECIMAL;
 
