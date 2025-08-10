@@ -1,7 +1,8 @@
 project(src)
 
 add_library(${PROJECT_NAME}
-  "./in_memory_storage.cpp"
+  "./storage.cpp"
+  "./data.cpp"
 )
 
 target_link_directories(

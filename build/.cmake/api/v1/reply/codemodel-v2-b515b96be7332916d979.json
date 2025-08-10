@@ -8,7 +8,8 @@
 					"build" : ".",
 					"childIndexes" : 
 					[
-						1
+						1,
+						2
 					],
 					"jsonFile" : "directory-.-f5ebdc15457944623624.json",
 					"minimumCMakeVersion" : 
@@ -36,6 +37,21 @@
 					[
 						1
 					]
+				},
+				{
+					"build" : "tests",
+					"jsonFile" : "directory-tests-b01f6abb0ab61427ef3b.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.16"
+					},
+					"parentIndex" : 0,
+					"projectIndex" : 2,
+					"source" : "tests",
+					"targetIndexes" : 
+					[
+						2
+					]
 				}
 			],
 			"name" : "",
@@ -44,7 +60,8 @@
 				{
 					"childIndexes" : 
 					[
-						1
+						1,
+						2
 					],
 					"directoryIndexes" : 
 					[
@@ -67,6 +84,18 @@
 					[
 						1
 					]
+				},
+				{
+					"directoryIndexes" : 
+					[
+						2
+					],
+					"name" : "tests",
+					"parentIndex" : 0,
+					"targetIndexes" : 
+					[
+						2
+					]
 				}
 			],
 			"targets" : 
@@ -74,16 +103,23 @@
 				{
 					"directoryIndex" : 0,
 					"id" : "chrono-db::@6890427a1f51a3e7e1df",
-					"jsonFile" : "target-chrono-db-1d6abaccd89f4acd510a.json",
+					"jsonFile" : "target-chrono-db-b00f1357a8f19a5be7f7.json",
 					"name" : "chrono-db",
 					"projectIndex" : 0
 				},
 				{
 					"directoryIndex" : 1,
 					"id" : "src::@145eef247bfb46b6828c",
-					"jsonFile" : "target-src-d035dc3f09160dc385ef.json",
+					"jsonFile" : "target-src-019f98d0a386560cea77.json",
 					"name" : "src",
 					"projectIndex" : 1
+				},
+				{
+					"directoryIndex" : 2,
+					"id" : "tests::@a44f0ac069e85531cdee",
+					"jsonFile" : "target-tests-c61747b761388b4cf01b.json",
+					"name" : "tests",
+					"projectIndex" : 2
 				}
 			]
 		}
