@@ -18,6 +18,12 @@ public:
   Data() = default;
 
   template <typename T>
+  Data(int64_t timestamp, std::string_view tag, T &&value)
+    : timestamp_(timestamp), tag_(tag) {
+    assign_value_(std::forward<T>(value));
+  }
+
+  template <typename T>
   Data(std::string_view tag, T &&value) : tag_(tag) {
     assign_value_(std::forward<T>(value));
   }
@@ -33,13 +39,20 @@ public:
   auto operator=(const Data &other) -> Data &;
   auto operator=(Data &&other) noexcept -> Data &;
 
+  auto operator==(const Data &other) noexcept -> bool;
+  auto operator!=(const Data &other) noexcept -> bool;
+
   auto get_string_value() const noexcept -> std::optional<std::string>;
   auto get_decimal_value() const noexcept -> std::optional<double>;
   auto get_integer_value() const noexcept -> std::optional<int64_t>;
+
   auto get_data_type() const noexcept -> int;
   auto get_tag() const noexcept -> const std::string &;
+  auto get_timestamp() const noexcept -> const int64_t &;
 
+  auto set_timestamp(int64_t timestamp) noexcept -> void;
   auto set_tag(std::string_view tag) noexcept -> void;
+
   auto reset(bool reset_tag) noexcept -> void;
 
 private:
@@ -47,6 +60,7 @@ private:
   std::unique_ptr<double> data_double_ = nullptr;
   std::unique_ptr<int64_t> data_int_ = nullptr;
 
+  int64_t timestamp_ {};
   std::string tag_;
   DataType type_ {};
 
@@ -94,4 +108,14 @@ private:
   }
 
   auto reset_base_() noexcept -> void;
+
+  auto check_objects_equality_(const Data &other) const noexcept -> bool;
+
+  template <typename T>
+  auto check_pointer_equality_(const std::unique_ptr<T> &ptr1,
+                               const std::unique_ptr<T> &ptr2) const noexcept -> bool {
+    if (!ptr1 && !ptr2) return true;
+    if (!ptr1 || !ptr2) return false;
+    return *ptr1 == *ptr2;
+  }
 };

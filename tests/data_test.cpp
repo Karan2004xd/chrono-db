@@ -26,6 +26,10 @@ public:
     EXPECT_EQ(Data::DataType::INTEGER, data1.type_);
     EXPECT_EQ(Data::DataType::DECIMAL, data2.type_);
     EXPECT_EQ(Data::DataType::STRING, data3.type_);
+
+    // Timestamp Test
+    auto data4 = Data {10000200, "test", "hello"};
+    EXPECT_EQ(data4.timestamp_, 10000200);
   }
 
   static auto copy_semantics() -> void {
@@ -33,11 +37,12 @@ public:
     auto data2 = Data(data);
 
     check_if_data_equal_(data, data2);
-
     data2.tag_ = "test2";
     data = data2;
-
     check_if_data_equal_(data, data2);
+
+    data = Data {1002, "test", "hello"};
+    check_if_data_equal_(data, Data {1002, "test", "hello"});
   }
 
   static auto move_semantics() -> void {
@@ -51,6 +56,11 @@ public:
 
     check_if_data_equal_(data2, Data {});
     check_if_data_equal_(data, data3);
+
+    auto data4 = Data {1002, "test", "hello"};
+    data = std::move(data4);
+
+    check_if_data_equal_(data, Data {1002, "test", "hello"});
   }
 
   static auto getters() -> void {
@@ -78,6 +88,10 @@ public:
 
     // Tag
     EXPECT_EQ(data1.get_tag(), "test1");
+
+    // Timestamp
+    auto data4 = Data {1002, "test3", 102.932239};
+    EXPECT_EQ(data4.get_timestamp(), 1002);
   }
 
   static auto setters() -> void {
@@ -93,6 +107,10 @@ public:
     // tag setter
     data.set_tag("test2");
     EXPECT_EQ(data.tag_, "test2");
+
+    // timestamp setter
+    data.set_timestamp(1002);
+    EXPECT_EQ(data.timestamp_, 1002);
   }
 
   static auto reset_data() -> void {
@@ -146,10 +164,18 @@ public:
     EXPECT_TRUE(check_optional_value_(str_value.get_string_value(), large_str));
   }
 
+  static auto equality_operators_check() -> void {
+    auto data1 = Data {"test1", "hello"};
+
+    EXPECT_TRUE(data1 == (Data {"test1", "hello"}));
+    EXPECT_FALSE(data1 != (Data {"test1", "hello"}));
+  }
+
 private:
   static auto check_if_data_equal_(const Data &d1, const Data &d2) -> void {
     EXPECT_EQ(d1.type_, d2.type_);
     EXPECT_EQ(d1.tag_, d2.tag_);
+    EXPECT_EQ(d1.timestamp_, d2.timestamp_);
 
     EXPECT_TRUE((!d1.data_str_ && !d2.data_str_) 
                 || *d1.data_str_ == *d2.data_str_);
@@ -194,4 +220,8 @@ TEST_F(DataTest, ResetDataTest) {
 
 TEST_F(DataTest, ExtremeValuesTest) {
   DataTest::extreme_values();
+}
+
+TEST_F(DataTest, EqualityOperatorsCheck) {
+  DataTest::equality_operators_check();
 }

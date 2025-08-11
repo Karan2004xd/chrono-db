@@ -1,17 +1,24 @@
 #include "../include/data.hpp"
 
-Data::Data(const Data &other) : tag_(other.tag_),type_(other.type_) {
+Data::Data(const Data &other) 
+  : timestamp_(other.timestamp_), tag_(other.tag_), type_(other.type_) {
+
   data_str_ = other.data_str_ ? std::make_unique<std::string>(*other.data_str_) : nullptr;
   data_double_ = other.data_double_ ? std::make_unique<double>(*other.data_double_) : nullptr;
   data_int_ = other.data_int_ ? std::make_unique<int64_t>(*other.data_int_) : nullptr;
 }
 
-Data::Data(Data &&other) noexcept : tag_(std::move(other.tag_)), type_(std::move(other.type_)) {
+Data::Data(Data &&other) noexcept
+  : timestamp_(std::move(other.timestamp_)),
+    tag_(std::move(other.tag_)),
+    type_(std::move(other.type_)) {
+
   data_str_ = std::move(other.data_str_);
   data_double_ = std::move(other.data_double_);
   data_int_ = std::move(other.data_int_);
 
   other.type_ = {};
+  other.timestamp_ = {};
 }
 
 auto Data::operator=(const Data &other) -> Data & {
@@ -21,6 +28,7 @@ auto Data::operator=(const Data &other) -> Data & {
 
   tag_ = other.tag_;
   type_ = other.type_;
+  timestamp_ = other.timestamp_;
   return *this;
 }
 
@@ -31,9 +39,19 @@ auto Data::operator=(Data &&other) noexcept -> Data & {
 
   tag_ = std::move(other.tag_);
   type_ = std::move(other.type_);
+  timestamp_ = std::move(other.timestamp_);
 
   other.type_ = {};
+  other.timestamp_ = {};
   return *this;
+}
+
+auto Data::operator==(const Data &other) noexcept -> bool {
+  return check_objects_equality_(other);
+}
+
+auto Data::operator!=(const Data &other) noexcept -> bool {
+  return !check_objects_equality_(other);
 }
 
 auto Data::get_string_value() const noexcept -> std::optional<std::string> {
@@ -61,8 +79,16 @@ auto Data::get_tag() const noexcept -> const std::string & {
   return tag_;
 }
 
+auto Data::get_timestamp() const noexcept -> const int64_t & {
+  return timestamp_;
+}
+
+auto Data::set_timestamp(int64_t timestamp) noexcept -> void {
+  timestamp_ = timestamp;
+}
+
 auto Data::set_tag(std::string_view tag) noexcept -> void {
-  tag_ = tag;
+  tag_ = std::string(tag);
 }
 
 auto Data::reset(bool reset_tag) noexcept -> void {
@@ -79,4 +105,23 @@ auto Data::reset_base_() noexcept -> void {
   data_int_.reset();
 
   type_ = {};
+}
+
+auto Data::check_objects_equality_(const Data &other) const noexcept -> bool {
+  if (tag_ != other.tag_) return false;
+  if (type_ != other.type_) return false;
+  if (timestamp_ != other.timestamp_) return false;
+
+  switch (type_) {
+    case DataType::STRING:
+      return check_pointer_equality_(data_str_, other.data_str_);
+
+    case DataType::DECIMAL:
+      return check_pointer_equality_(data_double_, other.data_double_);
+
+    case DataType::INTEGER:
+      return check_pointer_equality_(data_int_, other.data_int_);
+  }
+
+  return false;
 }

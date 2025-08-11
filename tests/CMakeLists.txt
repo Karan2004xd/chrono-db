@@ -5,6 +5,7 @@ include_directories(${GTest_INCLUDE_DIRS})
 
 set(TEST_SOURCES
   "./data_test.cpp"
+  "./storage_test.cpp"
 )
 
 add_executable(${PROJECT_NAME} ${TEST_SOURCES})
