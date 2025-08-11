@@ -19,7 +19,7 @@
 		"files" : 
 		[
 			"tests/CMakeLists.txt",
-			"/usr/share/cmake/Modules/FindGTest.cmake"
+			"/opt/homebrew/share/cmake/Modules/FindGTest.cmake"
 		],
 		"nodes" : 
 		[
@@ -80,18 +80,22 @@
 			"compileCommandFragments" : 
 			[
 				{
-					"fragment" : " -Wall -Wextra -Wpedantic -std=c++20"
+					"fragment" : " -Wall -Wextra -Wpedantic -std=c++20 -arch arm64"
 				}
 			],
 			"defines" : 
 			[
 				{
-					"backtrace" : 2,
-					"define" : "GTEST_LINKED_AS_SHARED_LIBRARY=1"
-				},
-				{
 					"backtrace" : 8,
 					"define" : "UNIT_TESTING"
+				}
+			],
+			"includes" : 
+			[
+				{
+					"backtrace" : 2,
+					"isSystem" : true,
+					"path" : "/opt/homebrew/include"
 				}
 			],
 			"language" : "CXX",
@@ -127,11 +131,11 @@
 			},
 			{
 				"backtrace" : 2,
-				"fragment" : "-L/home/karan/Documents/Code/chrono-db/include",
+				"fragment" : "-L/Users/karan/Development/chrono-db/include",
 				"role" : "libraryPath"
 			},
 			{
-				"fragment" : "-Wl,-rpath,/home/karan/Documents/Code/chrono-db/include",
+				"fragment" : "-Wl,-rpath,/Users/karan/Development/chrono-db/include",
 				"role" : "libraries"
 			},
 			{
@@ -141,12 +145,12 @@
 			},
 			{
 				"backtrace" : 6,
-				"fragment" : "/usr/lib/libgtest_main.so.1.17.0",
+				"fragment" : "/opt/homebrew/lib/libgtest_main.a",
 				"role" : "libraries"
 			},
 			{
 				"backtrace" : 7,
-				"fragment" : "/usr/lib/libgtest.so.1.17.0",
+				"fragment" : "/opt/homebrew/lib/libgtest.a",
 				"role" : "libraries"
 			}
 		],

@@ -25,13 +25,13 @@
 			{
 				"command" : 0,
 				"file" : 0,
-				"line" : 14,
+				"line" : 15,
 				"parent" : 0
 			},
 			{
 				"command" : 1,
 				"file" : 0,
-				"line" : 16,
+				"line" : 17,
 				"parent" : 0
 			}
 		]
@@ -42,7 +42,7 @@
 			"compileCommandFragments" : 
 			[
 				{
-					"fragment" : " -Wall -Wextra -Wpedantic -std=c++20"
+					"fragment" : " -Wall -Wextra -Wpedantic -std=c++20 -arch arm64"
 				}
 			],
 			"language" : "CXX",
@@ -78,11 +78,11 @@
 			},
 			{
 				"backtrace" : 2,
-				"fragment" : "-L/home/karan/Documents/Code/chrono-db/include",
+				"fragment" : "-L/Users/karan/Development/chrono-db/include",
 				"role" : "libraryPath"
 			},
 			{
-				"fragment" : "-Wl,-rpath,/home/karan/Documents/Code/chrono-db/include",
+				"fragment" : "-Wl,-rpath,/Users/karan/Development/chrono-db/include",
 				"role" : "libraries"
 			},
 			{

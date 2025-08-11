@@ -1,7 +1,8 @@
 #include "gtest/gtest.h"
 #include "../include/data.hpp"
 
-struct DataTest : public ::testing::Test {
+class DataTest : public ::testing::Test {
+public:
   static auto constrcutor_data_assign() -> void {
     auto data = Data {"test", "hello"};
     auto data1 = Data {"test1", 10000};
