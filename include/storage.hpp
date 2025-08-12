@@ -2,8 +2,8 @@
 
 #include "constant.hpp"
 #include <map>
+#include <optional>
 #include <unordered_map>
-#include <unordered_set>
 
 class Data;
 
@@ -17,7 +17,8 @@ public:
   using ConstDataRef = std::reference_wrapper<const Data>;
   using ConstDataRefList = std::vector<ConstDataRef>;
 
-  using TagsContainer = std::unordered_map<int64_t, std::unordered_set<std::string>>;
+  using TagsContainer = std::unordered_map<int64_t, std::unordered_map<std::string, ConstDataRef>>;
+  using ConstTagNameRef = std::reference_wrapper<const std::string>;
 
   Storage() = default;
 
@@ -32,8 +33,14 @@ public:
   auto get_data(int64_t timestamp) const noexcept
     -> ConstDataRefList;
 
+  auto get_data(int64_t timestamp, std::string_view tag_name) const noexcept
+    -> std::optional<ConstDataRef>;
+
   auto get_data_in_range(int64_t start_ts, int64_t end_ts) const noexcept
     -> std::vector<ConstDataRefList>;
+
+  auto contains(int64_t timestamp) const noexcept -> bool;
+  auto get_tags(int64_t timestamp) const noexcept -> std::vector<ConstTagNameRef>;
 
 private:
   Container data_rows_;
