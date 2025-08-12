@@ -50,6 +50,24 @@ public:
     }
 
     ASSERT_DEATH(obj.store(-1, {}), "");
+
+    // check duplicate values
+    obj.store(1, { Data {"test", "hello"}});
+    obj.store(1, { Data {"test", "hello"}});
+
+    EXPECT_EQ(obj.data_rows_[1].size(), 1);
+
+    // check only insert
+    obj.store(2, { Data {"test", "hello"}});
+    obj.store(2, { Data {"test", "hello world"}});
+    EXPECT_TRUE(obj.data_rows_[2][0] != (Data {2, "test", "hello world"}));
+
+
+    // check insert or update
+    obj.store(3, { Data {"test", "hello"}});
+    obj.store(3, { Data {"test", "hello world"}}, true);
+
+    EXPECT_TRUE(obj.data_rows_[3][0] == (Data {3, "test", "hello world"}));
   }
 
   static auto get_data() -> void {
@@ -130,6 +148,28 @@ public:
     EXPECT_TRUE(returned_data_refs.empty());
   }
 
+  static auto get_tags() -> void {
+    auto obj = Storage {};
+    obj.store(1002, { Data {"test", 1002}, Data {"test2" , "value"} });
+
+    const auto &tag_names = obj.get_tags(1002);
+    auto tag_names_test = std::vector<std::string>{"test", "test2"};
+
+    ASSERT_EQ(tag_names.size(), tag_names_test.size());
+    auto n = tag_names.size();
+
+    for (size_t i = 0; i < n; i++) {
+      auto found = false;
+      for (size_t j = 0; j < n; j++) {
+        if (tag_names[i].get() == tag_names_test[j]) {
+          found = true;
+          break;
+        }
+      }
+      EXPECT_TRUE(found);
+    }
+  }
+
   static auto contains_data() -> void {
     auto obj = Storage{};
     auto data = Data {"test", "hello"};
@@ -168,6 +208,31 @@ public:
 
     obj.update(1003, {data.copy()}, true);
     EXPECT_TRUE(obj.data_rows_.contains(1003));
+  }
+
+  static auto erase_data() -> void {
+    auto obj = Storage{};
+    auto data = Data {"test", "hello"};
+
+    // Timestamp delete
+    obj.store(1002, {data.copy()});
+    obj.erase(1002);
+
+    EXPECT_FALSE(obj.data_rows_.contains(1002));
+    EXPECT_FALSE(obj.tags_map_.contains(1002));
+    EXPECT_FALSE(obj.free_list_.contains(1002));
+
+    // Tag Delete
+    obj.store(1002, {data.copy()});
+    obj.erase(1002, "test");
+
+    EXPECT_TRUE(obj.data_rows_.contains(1002));
+    EXPECT_TRUE(obj.tags_map_.contains(1002));
+    EXPECT_TRUE(obj.free_list_.contains(1002));
+
+    EXPECT_FALSE(obj.data_rows_.at(1002).empty());
+    EXPECT_TRUE(obj.free_list_.at(1002).contains(0));
+    EXPECT_TRUE(obj.tags_map_.at(1002).empty());
   }
 
 private:
@@ -263,6 +328,10 @@ TEST_F(StorageTest, GetDataInRangeTest) {
   StorageTest::get_data_in_range();
 }
 
+TEST_F(StorageTest, GetTagsTest) {
+  StorageTest::get_tags();
+}
+
 TEST_F(StorageTest, ContainsDataTest) {
   StorageTest::contains_data();
 }
@@ -273,4 +342,8 @@ TEST_F(StorageTest, GetDataLengthTest) {
 
 TEST_F(StorageTest, UpdateData) {
   StorageTest::update_data();
+}
+
+TEST_F(StorageTest, EraseData) {
+  StorageTest::erase_data();
 }

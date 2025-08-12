@@ -20,7 +20,10 @@ auto Storage::operator=(Storage &&other) noexcept -> Storage & {
   return *this;
 }
 
-auto Storage::store(int64_t timestamp, std::vector<Data> &&data) noexcept -> void {
+auto Storage::store(int64_t timestamp,
+                    std::vector<Data> &&data,
+                    bool update_if_exist) noexcept -> void {
+  if (contains(timestamp) && !update_if_exist) return ;
   store_base_(timestamp, std::forward<decltype(data)>(data));
 }
 
@@ -32,7 +35,7 @@ auto Storage::get_data(int64_t timestamp, std::string_view tag_name) const noexc
   -> std::optional<ConstDataRef> {
 
   if (!contains_base_(timestamp, tag_name)) return std::nullopt;
-  return std::cref(tags_map_.at(timestamp).at(std::string(tag_name)));
+  return std::cref(tags_map_.at(timestamp).at(std::string(tag_name)).second);
 }
 
 auto Storage::get_data_in_range(int64_t start_ts, int64_t end_ts) const noexcept 
@@ -92,17 +95,63 @@ auto Storage::update(int64_t timestamp,
   store_base_(timestamp, std::forward<decltype(data)>(data));
 }
 
+auto Storage::erase(int64_t timestamp) noexcept -> void {
+  erase_base_(timestamp);
+}
+
+auto Storage::erase(int64_t timestamp, std::string_view tag) noexcept -> void {
+  erase_base_(timestamp, tag);
+}
+
 auto Storage::store_base_(int64_t timestamp,
                           std::vector<Data> &&data) noexcept -> void {
 
   assert(timestamp >= 0);
 
-  auto &row = data_rows_[timestamp];
-  for (auto &data_obj : data) {
-    data_obj.set_timestamp(timestamp);
-    row.emplace_back(std::move(data_obj));
+  auto &free_idx_list = free_list_[timestamp];
+  auto data_it = data.begin();
 
-    tags_map_[timestamp].insert({row.back().get_tag(), std::cref(row.back())});
+  auto &row = data_rows_[timestamp];
+  auto &tag_map_row = tags_map_[timestamp];
+
+  auto available_idx = std::unordered_set<int64_t>{};
+  for (size_t i = 0; i < row.size(); i++) {
+    data_it->set_timestamp(timestamp);
+    available_idx.insert(i);
+    data_it++;
+  }
+
+  data_it = data.begin();
+
+  // Occupy the free index spots
+  for (auto &free_idx : free_idx_list) {
+    row[free_idx] = std::move(*data_it);
+
+    available_idx.erase(free_idx);
+    free_idx_list.erase(free_idx);
+
+    data_it++;
+  }
+
+  // Occupy the index that are left out and available
+  for (const auto &left_idx : available_idx) {
+    row[left_idx] = std::move(*data_it);
+    data_it++;
+  }
+
+  // Create new index if no other spot is available
+  while (data_it != data.end()) {
+    data_it->set_timestamp(timestamp);
+    auto idx = std::distance(data_it, data.begin());
+
+    row.emplace_back(std::move(*data_it));
+    auto tag_metadata = std::make_pair<int64_t, ConstDataRef>(
+      idx, std::cref(row.back())
+    );
+
+    tag_map_row.insert({row.back().get_tag(), std::move(tag_metadata)});
+
+    data_it++;
   }
 }
 
@@ -124,15 +173,31 @@ auto Storage::contains_base_(int64_t timestamp,
 
   assert(data_rows_.contains(timestamp) == tags_map_.contains(timestamp));
 
-  if (tag.empty()) return data_rows_.contains(timestamp);
-  return data_rows_.contains(timestamp) 
-    && tags_map_.at(timestamp).contains(std::string(tag));
+  if (!data_rows_.contains(timestamp)) return false;
+  if (tag.empty()) return true;
+
+  auto tag_str = std::string(tag);
+  if (!tags_map_.at(timestamp).contains(tag_str)) return false;
+
+  auto data_idx = tags_map_.at(timestamp).at(tag_str).first;
+  return !free_list_.contains(data_idx);
 }
 
 auto Storage::erase_base_(int64_t timestamp,
-                          std::string_view tag) const noexcept -> void {
+                          std::string_view tag) noexcept -> void {
+
   if (!contains_base_(timestamp, tag)) return ;
+  auto tag_str = std::string(tag);
+  auto &tags_map_list = tags_map_.at(timestamp);
 
   if (!tag.empty()) {
+    auto idx = tags_map_list.at(tag_str).first;
+    free_list_.at(timestamp).insert(idx);
+    tags_map_list.erase(tag_str);
+
+  } else {
+    tags_map_.erase(timestamp);
+    data_rows_.erase(timestamp);
+    free_list_.erase(timestamp);
   }
 }

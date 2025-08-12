@@ -2,6 +2,7 @@
 
 #include "constant.hpp"
 #include <map>
+#include <unordered_set>
 
 class Data;
 
@@ -15,8 +16,11 @@ public:
   using ConstDataRef = std::reference_wrapper<const Data>;
   using ConstDataRefList = std::vector<ConstDataRef>;
 
-  using TagsContainer = std::unordered_map<int64_t, std::unordered_map<std::string, ConstDataRef>>;
+  using TagsContainer = std::unordered_map<
+    int64_t, std::unordered_map<std::string, std::pair<int64_t, ConstDataRef>>>;
+
   using ConstTagNameRef = std::reference_wrapper<const std::string>;
+  using FreeListContainer = std::unordered_map<int64_t, std::unordered_set<int64_t>>;
 
   Storage() = default;
 
@@ -26,7 +30,9 @@ public:
   auto operator=(const Storage &other) noexcept -> Storage &;
   auto operator=(Storage &&other) noexcept -> Storage &;
 
-  auto store(int64_t timestamp, std::vector<Data> &&data) noexcept -> void;
+  auto store(int64_t timestamp,
+             std::vector<Data> &&data,
+             bool update_if_exist = false) noexcept -> void;
 
   auto get_data(int64_t timestamp) const noexcept
     -> ConstDataRefList;
@@ -53,6 +59,7 @@ public:
 private:
   Container data_rows_;
   TagsContainer tags_map_;
+  FreeListContainer free_list_;
 
   auto store_base_(int64_t timestamp, std::vector<Data> &&data) noexcept -> void;
   auto get_data_base_(int64_t timestamp) const noexcept -> ConstDataRefList;
@@ -60,5 +67,5 @@ private:
                       std::string_view tag = {}) const noexcept -> bool;
 
   auto erase_base_(int64_t timestamp,
-                   std::string_view tag = {}) const noexcept -> void;
+                   std::string_view tag = {}) noexcept -> void;
 };
