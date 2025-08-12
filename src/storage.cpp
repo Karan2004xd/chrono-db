@@ -31,13 +31,8 @@ auto Storage::get_data(int64_t timestamp) const noexcept -> ConstDataRefList {
 auto Storage::get_data(int64_t timestamp, std::string_view tag_name) const noexcept
   -> std::optional<ConstDataRef> {
 
-  assert(data_rows_.contains(timestamp) == tags_map_.contains(timestamp));
-  auto tag_name_str = std::string(tag_name);
-
-  if (!data_rows_.contains(timestamp) ||
-    !tags_map_.at(timestamp).contains(tag_name_str)) return std::nullopt;
-
-  return std::cref(tags_map_.at(timestamp).at(tag_name_str));
+  if (!contains_base_(timestamp, tag_name)) return std::nullopt;
+  return std::cref(tags_map_.at(timestamp).at(std::string(tag_name)));
 }
 
 auto Storage::get_data_in_range(int64_t start_ts, int64_t end_ts) const noexcept 
@@ -58,7 +53,12 @@ auto Storage::get_data_in_range(int64_t start_ts, int64_t end_ts) const noexcept
 }
 
 auto Storage::contains(int64_t timestamp) const noexcept -> bool {
-  return data_rows_.contains(timestamp);
+  return contains_base_(timestamp);
+}
+
+auto Storage::contains(int64_t timestamp,
+                       std::string_view tag_name) const noexcept -> bool {
+  return contains_base_(timestamp, tag_name);
 }
 
 auto Storage::get_tags(int64_t timestamp) const noexcept
@@ -75,6 +75,23 @@ auto Storage::get_tags(int64_t timestamp) const noexcept
   return tags_list;
 }
 
+auto Storage::get_length() const noexcept -> int64_t {
+  return data_rows_.size();
+}
+
+auto Storage::get_length(int64_t timestamp) const noexcept -> int64_t {
+  if (!contains_base_(timestamp)) return 0;
+  return tags_map_.at(timestamp).size();
+}
+
+auto Storage::update(int64_t timestamp,
+                     std::vector<Data> &&data,
+                     bool insert_if_not_exist) noexcept -> void {
+  if (!insert_if_not_exist && !contains_base_(timestamp)) return ;
+
+  store_base_(timestamp, std::forward<decltype(data)>(data));
+}
+
 auto Storage::store_base_(int64_t timestamp,
                           std::vector<Data> &&data) noexcept -> void {
 
@@ -83,8 +100,9 @@ auto Storage::store_base_(int64_t timestamp,
   auto &row = data_rows_[timestamp];
   for (auto &data_obj : data) {
     data_obj.set_timestamp(timestamp);
-    tags_map_[timestamp].insert({data_obj.get_tag(), std::cref(data_obj)});
     row.emplace_back(std::move(data_obj));
+
+    tags_map_[timestamp].insert({row.back().get_tag(), std::cref(row.back())});
   }
 }
 
@@ -99,4 +117,22 @@ auto Storage::get_data_base_(int64_t timestamp) const noexcept
     data_list.push_back(std::cref(data));
   }
   return data_list;
+}
+
+auto Storage::contains_base_(int64_t timestamp,
+                             std::string_view tag) const noexcept -> bool {
+
+  assert(data_rows_.contains(timestamp) == tags_map_.contains(timestamp));
+
+  if (tag.empty()) return data_rows_.contains(timestamp);
+  return data_rows_.contains(timestamp) 
+    && tags_map_.at(timestamp).contains(std::string(tag));
+}
+
+auto Storage::erase_base_(int64_t timestamp,
+                          std::string_view tag) const noexcept -> void {
+  if (!contains_base_(timestamp, tag)) return ;
+
+  if (!tag.empty()) {
+  }
 }

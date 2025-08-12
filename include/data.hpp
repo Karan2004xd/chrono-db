@@ -20,11 +20,13 @@ public:
   template <typename T>
   Data(int64_t timestamp, std::string_view tag, T &&value)
     : timestamp_(timestamp), tag_(tag) {
+    assert(!tag_.empty());
     assign_value_(std::forward<T>(value));
   }
 
   template <typename T>
   Data(std::string_view tag, T &&value) : tag_(tag) {
+    assert(!tag_.empty());
     assign_value_(std::forward<T>(value));
   }
 
@@ -54,6 +56,7 @@ public:
   auto set_tag(std::string_view tag) noexcept -> void;
 
   auto reset(bool reset_tag) noexcept -> void;
+  auto copy() const noexcept -> Data;
 
 private:
   std::unique_ptr<std::string> data_str_ = nullptr;

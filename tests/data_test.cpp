@@ -21,6 +21,8 @@ public:
     EXPECT_EQ("test2", data2.tag_);
     EXPECT_EQ("test3", data3.tag_);
 
+    ASSERT_DEATH((Data {"", "hello"}), "");
+
     // Type Test
     EXPECT_EQ(Data::DataType::STRING, data.type_);
     EXPECT_EQ(Data::DataType::INTEGER, data1.type_);
@@ -162,6 +164,8 @@ public:
     str_value.set_value(large_str);
 
     EXPECT_TRUE(check_optional_value_(str_value.get_string_value(), large_str));
+
+    ASSERT_DEATH(str_value.set_tag(""), "");
   }
 
   static auto equality_operators_check() -> void {
@@ -169,6 +173,14 @@ public:
 
     EXPECT_TRUE(data1 == (Data {"test1", "hello"}));
     EXPECT_FALSE(data1 != (Data {"test1", "hello"}));
+  }
+
+  static auto copy_object() -> void {
+    auto data = Data {1002, "test", "value"};
+    auto data_copy = data.copy();
+
+    check_if_data_equal_(data, data_copy);
+    EXPECT_NE(&data, &data_copy);
   }
 
 private:
@@ -225,3 +237,7 @@ TEST_F(DataTest, ExtremeValuesTest) {
 TEST_F(DataTest, EqualityOperatorsCheck) {
   DataTest::equality_operators_check();
 }
+
+TEST_F(DataTest, CopyObjectTest) {
+  DataTest::copy_object();
+} 

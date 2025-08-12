@@ -88,6 +88,7 @@ auto Data::set_timestamp(int64_t timestamp) noexcept -> void {
 }
 
 auto Data::set_tag(std::string_view tag) noexcept -> void {
+  assert(!tag.empty());
   tag_ = std::string(tag);
 }
 
@@ -97,6 +98,10 @@ auto Data::reset(bool reset_tag) noexcept -> void {
     tag_ = {};
   }
   reset_base_();
+}
+
+auto Data::copy() const noexcept -> Data {
+  return {*this};
 }
 
 auto Data::reset_base_() noexcept -> void {

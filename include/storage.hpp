@@ -2,8 +2,6 @@
 
 #include "constant.hpp"
 #include <map>
-#include <optional>
-#include <unordered_map>
 
 class Data;
 
@@ -32,15 +30,25 @@ public:
 
   auto get_data(int64_t timestamp) const noexcept
     -> ConstDataRefList;
-
   auto get_data(int64_t timestamp, std::string_view tag_name) const noexcept
     -> std::optional<ConstDataRef>;
-
   auto get_data_in_range(int64_t start_ts, int64_t end_ts) const noexcept
     -> std::vector<ConstDataRefList>;
 
   auto contains(int64_t timestamp) const noexcept -> bool;
+  auto contains(int64_t timestamp, std::string_view tag_name) const noexcept -> bool;
+
   auto get_tags(int64_t timestamp) const noexcept -> std::vector<ConstTagNameRef>;
+
+  auto get_length() const noexcept -> int64_t;
+  auto get_length(int64_t timestamp) const noexcept -> int64_t;
+
+  auto update(int64_t timestamp,
+              std::vector<Data> &&data,
+              bool insert_if_not_exist = false) noexcept -> void;
+
+  auto erase(int64_t timestamp) noexcept -> void;
+  auto erase(int64_t timestamp, std::string_view tag) noexcept -> void;
 
 private:
   Container data_rows_;
@@ -48,4 +56,9 @@ private:
 
   auto store_base_(int64_t timestamp, std::vector<Data> &&data) noexcept -> void;
   auto get_data_base_(int64_t timestamp) const noexcept -> ConstDataRefList;
+  auto contains_base_(int64_t timestamp,
+                      std::string_view tag = {}) const noexcept -> bool;
+
+  auto erase_base_(int64_t timestamp,
+                   std::string_view tag = {}) const noexcept -> void;
 };

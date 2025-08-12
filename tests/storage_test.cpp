@@ -90,8 +90,12 @@ public:
     obj.store(1002, {data});
 
     auto value = obj.get_data(1002, "test");
-    EXPECT_TRUE(obj.get_data(1002, "test") != std::nullopt);
-    /* EXPECT_TRUE((Data {1002, "test", "hello"}) == value.get()); */
+
+    EXPECT_NE(value, std::nullopt);
+    EXPECT_TRUE((Data {1002, "test", "hello"}) == value->get());
+
+    EXPECT_EQ(obj.get_data(1002, "invalid_tag"), std::nullopt);
+    EXPECT_EQ(obj.get_data(10050, "test"), std::nullopt);
   }
 
   static auto get_data_in_range() -> void {
@@ -124,6 +128,69 @@ public:
     // start timestamp and end timestamp both larger then maximum 
     returned_data_refs = obj.get_data_in_range(10000, 20000);
     EXPECT_TRUE(returned_data_refs.empty());
+  }
+
+  static auto contains_data() -> void {
+    auto obj = Storage{};
+    auto data = Data {"test", "hello"};
+
+    obj.store(1002, {data.copy()});
+
+    EXPECT_TRUE(obj.contains(1002));
+    EXPECT_TRUE(obj.contains(1002, "test"));
+
+    EXPECT_FALSE(obj.contains(100000));
+    EXPECT_FALSE(obj.contains(1002, "invalid_tag"));
+  }
+
+  static auto get_data_length() -> void {
+    auto obj = Storage{};
+    auto data = Data {"test", "hello"};
+
+    obj.store(1002, {data.copy()});
+
+    EXPECT_EQ(obj.get_length(), 1);
+    EXPECT_EQ(obj.get_length(1002), 1);
+    EXPECT_EQ(obj.get_length(10003), 0);
+  }
+
+  static auto update_data() -> void {
+    auto obj = Storage{};
+    auto data = Data {"test", "hello"};
+
+    obj.store(1002, {data.copy()});
+    obj.update(1002, {Data {"test", "hello world"}});
+
+    EXPECT_TRUE(obj.data_rows_[1002][0] != data);
+
+    obj.update(1003, {data.copy()});
+    EXPECT_FALSE(obj.data_rows_.contains(1003));
+
+    obj.update(1003, {data.copy()}, true);
+    EXPECT_TRUE(obj.data_rows_.contains(1003));
+  }
+
+private:
+  static auto get_dummy_data_(int n, const std::vector<int64_t> &timestamps)
+    -> std::vector<std::vector<Data>> {
+
+    auto data = std::vector<std::vector<Data>>(n);
+
+    for (auto i = 0; i < n; i++) {
+      auto tag = "test" + std::to_string(i);
+      auto str_val = "value" + std::to_string(i);
+      auto int_val = 111 * i;
+      auto double_val = 17.9 * i;
+
+      auto single_data = std::vector<Data>{
+        Data {timestamps[i], tag, str_val},
+        Data {timestamps[i], tag, int_val},
+        Data {timestamps[i], tag, double_val}
+      };
+
+    data[i] = std::move(single_data);
+    }
+    return data;
   }
 
   static auto check_if_objects_equal_(const Storage &obj1,
@@ -170,29 +237,6 @@ public:
       tags_map_it_2++;
     }
   }
-
-private:
-  static auto get_dummy_data_(int n, const std::vector<int64_t> &timestamps)
-    -> std::vector<std::vector<Data>> {
-
-    auto data = std::vector<std::vector<Data>>(n);
-
-    for (auto i = 0; i < n; i++) {
-      auto tag = "test" + std::to_string(i);
-      auto str_val = "value" + std::to_string(i);
-      auto int_val = 111 * i;
-      auto double_val = 17.9 * i;
-
-      auto single_data = std::vector<Data>{
-        Data {timestamps[i], tag, str_val},
-        Data {timestamps[i], tag, int_val},
-        Data {timestamps[i], tag, double_val}
-      };
-
-    data[i] = std::move(single_data);
-    }
-    return data;
-  }
 };
 
 TEST_F(StorageTest, CopySementicsTest) {
@@ -217,4 +261,16 @@ TEST_F(StorageTest, GetDataByTsTest) {
 
 TEST_F(StorageTest, GetDataInRangeTest) {
   StorageTest::get_data_in_range();
+}
+
+TEST_F(StorageTest, ContainsDataTest) {
+  StorageTest::contains_data();
+}
+
+TEST_F(StorageTest, GetDataLengthTest) {
+  StorageTest::get_data_length();
+}
+
+TEST_F(StorageTest, UpdateData) {
+  StorageTest::update_data();
 }
