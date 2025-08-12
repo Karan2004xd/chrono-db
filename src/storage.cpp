@@ -116,9 +116,11 @@ auto Storage::store_base_(int64_t timestamp,
 
   auto available_idx = std::unordered_set<int64_t>{};
   for (size_t i = 0; i < row.size(); i++) {
-    data_it->set_timestamp(timestamp);
+    if (data_it != data.end()) {
+      data_it->set_timestamp(timestamp);
+      data_it++;
+    }
     available_idx.insert(i);
-    data_it++;
   }
 
   data_it = data.begin();
