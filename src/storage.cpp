@@ -23,25 +23,34 @@ auto Storage::operator=(Storage &&other) noexcept -> Storage & {
 auto Storage::store(int64_t timestamp,
                     std::vector<Data> &&data,
                     bool update_if_exist) noexcept -> void {
-  if (contains(timestamp) && !update_if_exist) return ;
+  if (contains_base_(timestamp) && !update_if_exist) return ;
   store_base_(timestamp, std::forward<decltype(data)>(data));
 }
 
-auto Storage::get_data(int64_t timestamp) const noexcept -> ConstDataRefList {
+auto Storage::store(DataRows &&rows, bool update_if_exist) noexcept -> void {
+  for (auto row : rows) {
+    auto timestamp = row.first;
+
+    if (contains_base_(timestamp) && !update_if_exist) break;
+    store_base_(timestamp, std::forward<decltype(row.second)>(row.second));
+  }
+}
+
+auto Storage::get_data(int64_t timestamp) const noexcept -> DataViewList {
   return get_data_base_(timestamp);
 }
 
 auto Storage::get_data(int64_t timestamp, std::string_view tag_name) const noexcept
-  -> std::optional<ConstDataRef> {
+  -> std::optional<DataView> {
 
   if (!contains_base_(timestamp, tag_name)) return std::nullopt;
   return std::cref(tags_map_.at(timestamp).at(std::string(tag_name)).second);
 }
 
 auto Storage::get_data_in_range(int64_t start_ts, int64_t end_ts) const noexcept 
-  -> std::vector<ConstDataRefList> {
+  -> std::vector<DataViewList> {
 
-  auto range_data = std::vector<ConstDataRefList> {};
+  auto range_data = std::vector<DataViewList> {};
 
   if (start_ts > end_ts || data_rows_.empty()) return range_data;
 
@@ -65,9 +74,9 @@ auto Storage::contains(int64_t timestamp,
 }
 
 auto Storage::get_tags(int64_t timestamp) const noexcept
-  -> std::vector<ConstTagNameRef> {
+  -> std::vector<TagNameView> {
 
-  auto tags_list = std::vector<ConstTagNameRef> {};
+  auto tags_list = std::vector<TagNameView> {};
   if (!tags_map_.contains(timestamp)) return tags_list;
 
   const auto &ts_tags_map = tags_map_.at(timestamp);
@@ -103,6 +112,19 @@ auto Storage::erase(int64_t timestamp, std::string_view tag) noexcept -> void {
   erase_base_(timestamp, tag);
 }
 
+auto Storage::erase(const std::initializer_list<int64_t> &timestamps) noexcept -> void {
+  for (const auto &timestamp : timestamps) {
+    erase_base_(timestamp);
+  }
+}
+
+auto Storage::erase(int64_t timestamp,
+                    const std::initializer_list<std::string> &tags) noexcept -> void {
+  for (const auto &tag : tags) {
+    erase_base_(timestamp, tag);
+  }
+}
+
 auto Storage::store_base_(int64_t timestamp,
                           std::vector<Data> &&data) noexcept -> void {
 
@@ -120,6 +142,7 @@ auto Storage::store_base_(int64_t timestamp,
       data_it->set_timestamp(timestamp);
       data_it++;
     }
+
     available_idx.insert(i);
   }
 
@@ -127,6 +150,7 @@ auto Storage::store_base_(int64_t timestamp,
 
   // Occupy the free index spots
   for (auto &free_idx : free_idx_list) {
+    if (data_it == data.end()) break;
     row[free_idx] = std::move(*data_it);
 
     available_idx.erase(free_idx);
@@ -137,6 +161,7 @@ auto Storage::store_base_(int64_t timestamp,
 
   // Occupy the index that are left out and available
   for (const auto &left_idx : available_idx) {
+    if (data_it == data.end()) break;
     row[left_idx] = std::move(*data_it);
     data_it++;
   }
@@ -144,24 +169,23 @@ auto Storage::store_base_(int64_t timestamp,
   // Create new index if no other spot is available
   while (data_it != data.end()) {
     data_it->set_timestamp(timestamp);
-    auto idx = std::distance(data_it, data.begin());
+    auto idx = data_it - data.begin();
 
     row.emplace_back(std::move(*data_it));
-    auto tag_metadata = std::make_pair<int64_t, ConstDataRef>(
+    auto tag_metadata = std::make_pair<int64_t, DataView>(
       idx, std::cref(row.back())
     );
 
     tag_map_row.insert({row.back().get_tag(), std::move(tag_metadata)});
-
     data_it++;
   }
 }
 
 auto Storage::get_data_base_(int64_t timestamp) const noexcept
-  -> ConstDataRefList {
+  -> DataViewList {
 
   if (!data_rows_.contains(timestamp)) return {};
-  auto data_list = ConstDataRefList{};
+  auto data_list = DataViewList{};
 
   const auto &data_stored = data_rows_.at(timestamp);
   for (const auto &data : data_stored) {
@@ -182,13 +206,14 @@ auto Storage::contains_base_(int64_t timestamp,
   if (!tags_map_.at(timestamp).contains(tag_str)) return false;
 
   auto data_idx = tags_map_.at(timestamp).at(tag_str).first;
-  return !free_list_.contains(data_idx);
+  return !free_list_.at(timestamp).contains(data_idx);
 }
 
 auto Storage::erase_base_(int64_t timestamp,
                           std::string_view tag) noexcept -> void {
 
   if (!contains_base_(timestamp, tag)) return ;
+
   auto tag_str = std::string(tag);
   auto &tags_map_list = tags_map_.at(timestamp);
 

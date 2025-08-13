@@ -62,12 +62,30 @@ public:
     obj.store(2, { Data {"test", "hello world"}});
     EXPECT_TRUE(obj.data_rows_[2][0] != (Data {2, "test", "hello world"}));
 
-
     // check insert or update
     obj.store(3, { Data {"test", "hello"}});
     obj.store(3, { Data {"test", "hello world"}}, true);
 
     EXPECT_TRUE(obj.data_rows_[3][0] == (Data {3, "test", "hello world"}));
+  }
+
+  static auto bulk_store() -> void {
+    auto obj = Storage{};
+    auto timestamps = std::vector<int64_t> {
+      1004, 1003, 1002, 1001
+    };
+    auto n = timestamps.size();
+
+    obj.store({
+      {timestamps[0], { Data {"test1", "value1"}} },
+      {timestamps[1], { Data {"test2", "value2"}} },
+      {timestamps[2], { Data {"test3", "value3"}} },
+      {timestamps[3], { Data {"test4", "value4"}} },
+    });
+
+    for (const auto &[ts, data] : obj.data_rows_) {
+      EXPECT_EQ(ts, timestamps[--n]);
+    }
   }
 
   static auto get_data() -> void {
@@ -181,6 +199,9 @@ public:
 
     EXPECT_FALSE(obj.contains(100000));
     EXPECT_FALSE(obj.contains(1002, "invalid_tag"));
+
+    obj.erase(1002, "test");
+    EXPECT_FALSE(obj.contains(1002, "test"));
   }
 
   static auto get_data_length() -> void {
@@ -233,6 +254,39 @@ public:
     EXPECT_FALSE(obj.data_rows_.at(1002).empty());
     EXPECT_TRUE(obj.free_list_.at(1002).contains(0));
     EXPECT_TRUE(obj.tags_map_.at(1002).empty());
+
+    // Data less then the existing one
+    obj.store(1, { Data {"test1", "value1"}, Data {"test2", "value2"}});
+    obj.erase(1, "test2");
+
+    EXPECT_EQ(obj.data_rows_.size(), 2);
+    EXPECT_EQ(obj.free_list_.at(1).size(), 1);
+
+    obj.store(1, { Data {"test3", "value3"}}, true);
+    EXPECT_TRUE(obj.data_rows_.at(1)[1] == (Data {1, "test3", "value3"}));
+  }
+
+  static auto bulk_erase_data() -> void {
+    auto obj = Storage {};
+
+    obj.store({
+      {1, { 
+        Data {"test1", "value1"},
+        Data {"test1_2", "value1_2"},
+        Data {"test1_3", "value1_3"}
+      }},
+      {2, { Data {"test2", "value2"}} },
+      {3, { Data {"test3", "value3"}} },
+    });
+
+    // Erase multiple timestamps
+    obj.erase({2, 3});
+    EXPECT_EQ(obj.data_rows_.size(), 1);
+
+    // Erase multipe tags
+    obj.erase(1, {"test1_2", "test1_3"});
+    EXPECT_EQ(obj.tags_map_.at(1).size(), 1);
+    EXPECT_TRUE(obj.tags_map_.at(1).contains("test1"));
   }
 
 private:
@@ -316,6 +370,10 @@ TEST_F(StorageTest, StoreDataTest) {
   StorageTest::store();
 }
 
+TEST_F(StorageTest, BulkStoreDataTest) {
+  StorageTest::bulk_store();
+}
+
 TEST_F(StorageTest, GetSingleDataTest) {
   StorageTest::get_single_data();
 }
@@ -346,4 +404,8 @@ TEST_F(StorageTest, UpdateData) {
 
 TEST_F(StorageTest, EraseData) {
   StorageTest::erase_data();
+}
+
+TEST_F(StorageTest, BulkEraseData) {
+  StorageTest::bulk_erase_data();
 }

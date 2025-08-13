@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
+## [Unreleased] - 2025-08-13
+### Added
+- Support for bulk inserts and deletion of data in the `Storage` class with tests.
+
+### Changed
+
+### Fixed
+- Not handling of edge case in case of storage of data if the data provided is smaller then that of already stored.
+- Bug with checking whether the data cell exists or not in the `free_list`.
+
 ## [Unreleased] - 2025-08-12
 ### Added
 - More utility functions added to the `Data` class including tests for them as well.
