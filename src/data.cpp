@@ -71,8 +71,8 @@ auto Data::get_data_type() const noexcept -> int {
     case DataType::STRING: return 3;
     case DataType::INTEGER: return 1;
     case DataType::DECIMAL: return 2; 
+    default: return -1;
   }
-  return -1;
 }
 
 auto Data::get_tag() const noexcept -> const std::string & {
@@ -126,6 +126,8 @@ auto Data::check_objects_equality_(const Data &other) const noexcept -> bool {
 
     case DataType::INTEGER:
       return check_pointer_equality_(data_int_, other.data_int_);
+
+    default: return false;
   }
 
   return false;

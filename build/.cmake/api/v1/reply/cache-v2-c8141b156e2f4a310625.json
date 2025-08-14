@@ -15,7 +15,7 @@
 				}
 			],
 			"type" : "FILEPATH",
-			"value" : "/usr/bin/addr2line"
+			"value" : "/opt/homebrew/opt/llvm/bin/llvm-addr2line"
 		},
 		{
 			"name" : "CMAKE_AR",
@@ -55,7 +55,7 @@
 				}
 			],
 			"type" : "INTERNAL",
-			"value" : "/home/karan/Documents/Code/chrono-db/build"
+			"value" : "/Users/karan/Development/chrono-db/build"
 		},
 		{
 			"name" : "CMAKE_CACHE_MAJOR_VERSION",
@@ -119,7 +119,7 @@
 				}
 			],
 			"type" : "INTERNAL",
-			"value" : "/usr/bin/cmake"
+			"value" : "/opt/homebrew/bin/cmake"
 		},
 		{
 			"name" : "CMAKE_CPACK_COMMAND",
@@ -131,7 +131,7 @@
 				}
 			],
 			"type" : "INTERNAL",
-			"value" : "/usr/bin/cpack"
+			"value" : "/opt/homebrew/bin/cpack"
 		},
 		{
 			"name" : "CMAKE_CTEST_COMMAND",
@@ -143,7 +143,7 @@
 				}
 			],
 			"type" : "INTERNAL",
-			"value" : "/usr/bin/ctest"
+			"value" : "/opt/homebrew/bin/ctest"
 		},
 		{
 			"name" : "CMAKE_CXX_COMPILER",
@@ -159,7 +159,7 @@
 				}
 			],
 			"type" : "FILEPATH",
-			"value" : "/usr/bin/c++"
+			"value" : "/opt/homebrew/opt/llvm/bin/clang++"
 		},
 		{
 			"name" : "CMAKE_CXX_COMPILER_AR",
@@ -171,11 +171,27 @@
 				},
 				{
 					"name" : "HELPSTRING",
-					"value" : "A wrapper around 'ar' adding the appropriate '--plugin' option for the GCC compiler"
+					"value" : "LLVM archiver"
 				}
 			],
 			"type" : "FILEPATH",
-			"value" : "/usr/bin/gcc-ar"
+			"value" : "/opt/homebrew/Cellar/llvm/20.1.8/bin/llvm-ar"
+		},
+		{
+			"name" : "CMAKE_CXX_COMPILER_CLANG_SCAN_DEPS",
+			"properties" : 
+			[
+				{
+					"name" : "ADVANCED",
+					"value" : "1"
+				},
+				{
+					"name" : "HELPSTRING",
+					"value" : "`clang-scan-deps` dependency scanner"
+				}
+			],
+			"type" : "FILEPATH",
+			"value" : "/opt/homebrew/Cellar/llvm/20.1.8/bin/clang-scan-deps"
 		},
 		{
 			"name" : "CMAKE_CXX_COMPILER_RANLIB",
@@ -187,11 +203,11 @@
 				},
 				{
 					"name" : "HELPSTRING",
-					"value" : "A wrapper around 'ranlib' adding the appropriate '--plugin' option for the GCC compiler"
+					"value" : "Generate index for LLVM archive"
 				}
 			],
 			"type" : "FILEPATH",
-			"value" : "/usr/bin/gcc-ranlib"
+			"value" : "/opt/homebrew/Cellar/llvm/20.1.8/bin/llvm-ranlib"
 		},
 		{
 			"name" : "CMAKE_CXX_FLAGS",
@@ -287,7 +303,7 @@
 				}
 			],
 			"type" : "FILEPATH",
-			"value" : "/usr/bin/cc"
+			"value" : "/opt/homebrew/opt/llvm/bin/clang"
 		},
 		{
 			"name" : "CMAKE_C_COMPILER_AR",
@@ -299,11 +315,27 @@
 				},
 				{
 					"name" : "HELPSTRING",
-					"value" : "A wrapper around 'ar' adding the appropriate '--plugin' option for the GCC compiler"
+					"value" : "LLVM archiver"
 				}
 			],
 			"type" : "FILEPATH",
-			"value" : "/usr/bin/gcc-ar"
+			"value" : "/opt/homebrew/Cellar/llvm/20.1.8/bin/llvm-ar"
+		},
+		{
+			"name" : "CMAKE_C_COMPILER_CLANG_SCAN_DEPS",
+			"properties" : 
+			[
+				{
+					"name" : "ADVANCED",
+					"value" : "1"
+				},
+				{
+					"name" : "HELPSTRING",
+					"value" : "`clang-scan-deps` dependency scanner"
+				}
+			],
+			"type" : "FILEPATH",
+			"value" : "/opt/homebrew/Cellar/llvm/20.1.8/bin/clang-scan-deps"
 		},
 		{
 			"name" : "CMAKE_C_COMPILER_RANLIB",
@@ -315,11 +347,11 @@
 				},
 				{
 					"name" : "HELPSTRING",
-					"value" : "A wrapper around 'ranlib' adding the appropriate '--plugin' option for the GCC compiler"
+					"value" : "Generate index for LLVM archive"
 				}
 			],
 			"type" : "FILEPATH",
-			"value" : "/usr/bin/gcc-ranlib"
+			"value" : "/opt/homebrew/Cellar/llvm/20.1.8/bin/llvm-ranlib"
 		},
 		{
 			"name" : "CMAKE_C_FLAGS",
@@ -415,7 +447,7 @@
 				}
 			],
 			"type" : "FILEPATH",
-			"value" : "CMAKE_DLLTOOL-NOTFOUND"
+			"value" : "/opt/homebrew/opt/llvm/bin/llvm-dlltool"
 		},
 		{
 			"name" : "CMAKE_EDIT_COMMAND",
@@ -427,7 +459,7 @@
 				}
 			],
 			"type" : "INTERNAL",
-			"value" : "/usr/bin/ccmake"
+			"value" : "/opt/homebrew/bin/ccmake"
 		},
 		{
 			"name" : "CMAKE_EXECUTABLE_FORMAT",
@@ -439,7 +471,7 @@
 				}
 			],
 			"type" : "INTERNAL",
-			"value" : "ELF"
+			"value" : "MACHO"
 		},
 		{
 			"name" : "CMAKE_EXE_LINKER_FLAGS",
@@ -559,7 +591,7 @@
 				}
 			],
 			"type" : "STATIC",
-			"value" : "/home/karan/Documents/Code/chrono-db/build/CMakeFiles/pkgRedirects"
+			"value" : "/Users/karan/Development/chrono-db/build/CMakeFiles/pkgRedirects"
 		},
 		{
 			"name" : "CMAKE_GENERATOR",
@@ -631,7 +663,23 @@
 				}
 			],
 			"type" : "INTERNAL",
-			"value" : "/home/karan/Documents/Code/chrono-db"
+			"value" : "/Users/karan/Development/chrono-db"
+		},
+		{
+			"name" : "CMAKE_INSTALL_NAME_TOOL",
+			"properties" : 
+			[
+				{
+					"name" : "ADVANCED",
+					"value" : "1"
+				},
+				{
+					"name" : "HELPSTRING",
+					"value" : "Path to a program."
+				}
+			],
+			"type" : "FILEPATH",
+			"value" : "/usr/bin/install_name_tool"
 		},
 		{
 			"name" : "CMAKE_INSTALL_PREFIX",
@@ -644,18 +692,6 @@
 			],
 			"type" : "PATH",
 			"value" : "/usr/local"
-		},
-		{
-			"name" : "CMAKE_INSTALL_SO_NO_EXE",
-			"properties" : 
-			[
-				{
-					"name" : "HELPSTRING",
-					"value" : "Install .so files without execute permission."
-				}
-			],
-			"type" : "INTERNAL",
-			"value" : "0"
 		},
 		{
 			"name" : "CMAKE_LINKER",
@@ -795,7 +831,7 @@
 				}
 			],
 			"type" : "FILEPATH",
-			"value" : "/usr/bin/nm"
+			"value" : "/opt/homebrew/opt/llvm/bin/llvm-nm"
 		},
 		{
 			"name" : "CMAKE_NUMBER_OF_MAKEFILES",
@@ -823,7 +859,7 @@
 				}
 			],
 			"type" : "FILEPATH",
-			"value" : "/usr/bin/objcopy"
+			"value" : "/opt/homebrew/opt/llvm/bin/llvm-objcopy"
 		},
 		{
 			"name" : "CMAKE_OBJDUMP",
@@ -839,7 +875,43 @@
 				}
 			],
 			"type" : "FILEPATH",
-			"value" : "/usr/bin/objdump"
+			"value" : "/opt/homebrew/opt/llvm/bin/llvm-objdump"
+		},
+		{
+			"name" : "CMAKE_OSX_ARCHITECTURES",
+			"properties" : 
+			[
+				{
+					"name" : "HELPSTRING",
+					"value" : "Build architectures for OSX"
+				}
+			],
+			"type" : "STRING",
+			"value" : ""
+		},
+		{
+			"name" : "CMAKE_OSX_DEPLOYMENT_TARGET",
+			"properties" : 
+			[
+				{
+					"name" : "HELPSTRING",
+					"value" : "Minimum OS X version to target for deployment (at runtime); newer APIs weak linked. Set to empty string for default value."
+				}
+			],
+			"type" : "STRING",
+			"value" : ""
+		},
+		{
+			"name" : "CMAKE_OSX_SYSROOT",
+			"properties" : 
+			[
+				{
+					"name" : "HELPSTRING",
+					"value" : "The product will be built against the headers and libraries located inside the indicated SDK."
+				}
+			],
+			"type" : "STRING",
+			"value" : ""
 		},
 		{
 			"name" : "CMAKE_PLATFORM_INFO_INITIALIZED",
@@ -903,7 +975,7 @@
 				}
 			],
 			"type" : "FILEPATH",
-			"value" : "/usr/bin/ranlib"
+			"value" : "/opt/homebrew/opt/llvm/bin/llvm-ranlib"
 		},
 		{
 			"name" : "CMAKE_READELF",
@@ -919,7 +991,7 @@
 				}
 			],
 			"type" : "FILEPATH",
-			"value" : "/usr/bin/readelf"
+			"value" : "/opt/homebrew/opt/llvm/bin/llvm-readelf"
 		},
 		{
 			"name" : "CMAKE_ROOT",
@@ -931,7 +1003,7 @@
 				}
 			],
 			"type" : "INTERNAL",
-			"value" : "/usr/share/cmake"
+			"value" : "/opt/homebrew/share/cmake"
 		},
 		{
 			"name" : "CMAKE_SHARED_LINKER_FLAGS",
@@ -1155,7 +1227,7 @@
 				}
 			],
 			"type" : "FILEPATH",
-			"value" : "CMAKE_TAPI-NOTFOUND"
+			"value" : "/Library/Developer/CommandLineTools/usr/bin/tapi"
 		},
 		{
 			"name" : "CMAKE_UNAME",
@@ -1195,7 +1267,7 @@
 				}
 			],
 			"type" : "INTERNAL",
-			"value" : "[/usr/lib/cmake/GTest/GTestConfig.cmake][ ][v1.17.0()]"
+			"value" : "[/opt/homebrew/lib/cmake/GTest/GTestConfig.cmake][ ][v1.17.0()]"
 		},
 		{
 			"name" : "GTest_DIR",
@@ -1207,7 +1279,7 @@
 				}
 			],
 			"type" : "PATH",
-			"value" : "/usr/lib/cmake/GTest"
+			"value" : "/opt/homebrew/lib/cmake/GTest"
 		},
 		{
 			"name" : "chrono-db_BINARY_DIR",
@@ -1219,7 +1291,7 @@
 				}
 			],
 			"type" : "STATIC",
-			"value" : "/home/karan/Documents/Code/chrono-db/build"
+			"value" : "/Users/karan/Development/chrono-db/build"
 		},
 		{
 			"name" : "chrono-db_IS_TOP_LEVEL",
@@ -1243,7 +1315,7 @@
 				}
 			],
 			"type" : "STATIC",
-			"value" : "/home/karan/Documents/Code/chrono-db"
+			"value" : "/Users/karan/Development/chrono-db"
 		},
 		{
 			"name" : "src_BINARY_DIR",
@@ -1255,7 +1327,7 @@
 				}
 			],
 			"type" : "STATIC",
-			"value" : "/home/karan/Documents/Code/chrono-db/build/src"
+			"value" : "/Users/karan/Development/chrono-db/build/src"
 		},
 		{
 			"name" : "src_IS_TOP_LEVEL",
@@ -1279,7 +1351,7 @@
 				}
 			],
 			"type" : "STATIC",
-			"value" : "/home/karan/Documents/Code/chrono-db/src"
+			"value" : "/Users/karan/Development/chrono-db/src"
 		},
 		{
 			"name" : "tests_BINARY_DIR",
@@ -1291,7 +1363,7 @@
 				}
 			],
 			"type" : "STATIC",
-			"value" : "/home/karan/Documents/Code/chrono-db/build/tests"
+			"value" : "/Users/karan/Development/chrono-db/build/tests"
 		},
 		{
 			"name" : "tests_IS_TOP_LEVEL",
@@ -1315,7 +1387,7 @@
 				}
 			],
 			"type" : "STATIC",
-			"value" : "/home/karan/Documents/Code/chrono-db/tests"
+			"value" : "/Users/karan/Development/chrono-db/tests"
 		}
 	],
 	"kind" : "cache",

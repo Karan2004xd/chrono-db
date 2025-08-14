@@ -40,7 +40,6 @@ public:
   auto erase(const ListOfValues<int64_t> &timestamps) noexcept -> void;
   auto erase(int64_t timestamp,
              const ListOfValues<std::string> &tag_names) noexcept -> void;
-
 private:
   std::unique_ptr<Storage> db_ = nullptr;
 };

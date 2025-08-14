@@ -5,12 +5,14 @@
 #include <cmath>
 #include <optional>
 #include <memory>
+#include <string>
 
 class Data {
   TEST_FRIEND(DataTest);
 
 public:
   enum class DataType {
+    NONE,
     INTEGER, // 1
     DECIMAL, // 2
     STRING // 3
