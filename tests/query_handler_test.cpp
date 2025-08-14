@@ -121,6 +121,15 @@ public:
     obj.erase({2, 3});
     EXPECT_EQ(obj.db_->get_length(), 2);
   }
+
+  static auto get_data() -> void {
+    auto obj = QueryHandler(Storage());
+    std::vector<int> vec {1, 2, 5, 4};
+
+    obj.filter(vec.begin(), vec.end(), [](const auto &val) {
+      return val >= 2;
+    });
+  }
 };
 
 TEST(QueryHandlerTest, ConstructorTest) {
@@ -153,4 +162,8 @@ TEST(QueryHandlerTest, SingleEraseTest) {
 
 TEST(QueryHandlerTest, BulkEraseTest) {
   QueryHandlerTest::bulk_erase();
+}
+
+TEST(QueryHandlerTest, GetDataTest) {
+  QueryHandlerTest::get_data();
 }
