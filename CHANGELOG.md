@@ -2,15 +2,19 @@
 
 All notable changes to this project will be documented in this file.
 
-## [Unreleased] - 2025-08-13
+## [Unreleased] - 2025-08-14
 ### Added
-- Support for bulk inserts and deletion of data in the `Storage` class with tests.
+- QueryHandler added for handling user queries and using any underlying `Storage` class.
+- Tests for QueryHandler relevant operations added.
 
 ### Changed
+- Bulk operations and data checks removed from the `Storage` class, including the tests for it.
+- Refactored the `store_base_` to be more shorter and separated the logic of handling update and pure insertion to different helper functions.
+- Some test cases for the `Storage` class changed.
 
 ### Fixed
-- Not handling of edge case in case of storage of data if the data provided is smaller then that of already stored.
-- Bug with checking whether the data cell exists or not in the `free_list`.
+- Some bugs while updating existing values while performing the store operations.
+- Some test failures fixes
 
 ## [Unreleased] - 2025-08-12
 ### Added

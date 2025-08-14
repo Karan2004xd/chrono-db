@@ -1,7 +1,7 @@
 #include "gtest/gtest.h"
 #include "../include/data.hpp"
 
-class DataTest : public ::testing::Test {
+class DataTest {
 public:
   static auto constrcutor_data_assign() -> void {
     auto data = Data {"test", "hello"};
@@ -206,38 +206,38 @@ private:
   }
 };
 
-TEST_F(DataTest, ConstructorDataAssignTest) {
+TEST(DataTest, ConstructorDataAssignTest) {
   DataTest::constrcutor_data_assign();
 }
 
-TEST_F(DataTest, CopySemanticsTest) {
+TEST(DataTest, CopySemanticsTest) {
   DataTest::copy_semantics();
 }
 
-TEST_F(DataTest, MoveSemanticsTest) {
+TEST(DataTest, MoveSemanticsTest) {
   DataTest::move_semantics();
 }
 
-TEST_F(DataTest, GettersTest) {
+TEST(DataTest, GettersTest) {
   DataTest::getters();
 }
 
-TEST_F(DataTest, SettersTest) {
+TEST(DataTest, SettersTest) {
   DataTest::setters();
 }
 
-TEST_F(DataTest, ResetDataTest) {
+TEST(DataTest, ResetDataTest) {
   DataTest::reset_data();
 }
 
-TEST_F(DataTest, ExtremeValuesTest) {
+TEST(DataTest, ExtremeValuesTest) {
   DataTest::extreme_values();
 }
 
-TEST_F(DataTest, EqualityOperatorsCheck) {
+TEST(DataTest, EqualityOperatorsCheck) {
   DataTest::equality_operators_check();
 }
 
-TEST_F(DataTest, CopyObjectTest) {
+TEST(DataTest, CopyObjectTest) {
   DataTest::copy_object();
 } 

@@ -21,19 +21,8 @@ auto Storage::operator=(Storage &&other) noexcept -> Storage & {
 }
 
 auto Storage::store(int64_t timestamp,
-                    std::vector<Data> &&data,
-                    bool update_if_exist) noexcept -> void {
-  if (contains_base_(timestamp) && !update_if_exist) return ;
+                    std::vector<Data> &&data) noexcept -> void {
   store_base_(timestamp, std::forward<decltype(data)>(data));
-}
-
-auto Storage::store(DataRows &&rows, bool update_if_exist) noexcept -> void {
-  for (auto row : rows) {
-    auto timestamp = row.first;
-
-    if (contains_base_(timestamp) && !update_if_exist) break;
-    store_base_(timestamp, std::forward<decltype(row.second)>(row.second));
-  }
 }
 
 auto Storage::get_data(int64_t timestamp) const noexcept -> DataViewList {
@@ -97,10 +86,7 @@ auto Storage::get_length(int64_t timestamp) const noexcept -> int64_t {
 }
 
 auto Storage::update(int64_t timestamp,
-                     std::vector<Data> &&data,
-                     bool insert_if_not_exist) noexcept -> void {
-  if (!insert_if_not_exist && !contains_base_(timestamp)) return ;
-
+                     std::vector<Data> &&data) noexcept -> void {
   store_base_(timestamp, std::forward<decltype(data)>(data));
 }
 
@@ -112,31 +98,26 @@ auto Storage::erase(int64_t timestamp, std::string_view tag) noexcept -> void {
   erase_base_(timestamp, tag);
 }
 
-auto Storage::erase(const std::initializer_list<int64_t> &timestamps) noexcept -> void {
-  for (const auto &timestamp : timestamps) {
-    erase_base_(timestamp);
-  }
+auto Storage::update_tag_container_data_(TagsContainerData &tag_cont_data_ref,
+                                         int64_t index,
+                                         DataView &&view) noexcept -> void {
+  auto data_pair = std::make_pair(
+    index, std::forward<decltype(view)>(view)
+  );
+  tag_cont_data_ref.insert({view.get().get_tag(), std::move(data_pair)});
 }
 
-auto Storage::erase(int64_t timestamp,
-                    const std::initializer_list<std::string> &tags) noexcept -> void {
-  for (const auto &tag : tags) {
-    erase_base_(timestamp, tag);
-  }
-}
-
-auto Storage::store_base_(int64_t timestamp,
-                          std::vector<Data> &&data) noexcept -> void {
-
-  assert(timestamp >= 0);
+auto Storage::update_free_space_(int64_t timestamp,
+                                 ListOfData &&data,
+                                 TagsContainerData &tag_cont_data_ref) 
+  noexcept -> ListOfData::iterator {
 
   auto &free_idx_list = free_list_[timestamp];
-  auto data_it = data.begin();
-
   auto &row = data_rows_[timestamp];
-  auto &tag_map_row = tags_map_[timestamp];
 
   auto available_idx = std::unordered_set<int64_t>{};
+  auto data_it = data.begin();
+
   for (size_t i = 0; i < row.size(); i++) {
     if (data_it != data.end()) {
       data_it->set_timestamp(timestamp);
@@ -151,7 +132,11 @@ auto Storage::store_base_(int64_t timestamp,
   // Occupy the free index spots
   for (auto &free_idx : free_idx_list) {
     if (data_it == data.end()) break;
+
     row[free_idx] = std::move(*data_it);
+    update_tag_container_data_(tag_cont_data_ref,
+                               free_idx,
+                               std::cref(row[free_idx]));
 
     available_idx.erase(free_idx);
     free_idx_list.erase(free_idx);
@@ -162,9 +147,28 @@ auto Storage::store_base_(int64_t timestamp,
   // Occupy the index that are left out and available
   for (const auto &left_idx : available_idx) {
     if (data_it == data.end()) break;
+
     row[left_idx] = std::move(*data_it);
+    update_tag_container_data_(tag_cont_data_ref,
+                               left_idx,
+                               std::cref(row[left_idx]));
     data_it++;
   }
+  return data_it;
+}
+
+auto Storage::store_base_(int64_t timestamp,
+                          ListOfData &&data) noexcept -> void {
+
+  assert(timestamp >= 0);
+
+  auto &row = data_rows_[timestamp];
+  auto &tag_map_row = tags_map_[timestamp];
+  tag_map_row = {};
+
+  auto data_it = update_free_space_(timestamp,
+                                    std::forward<decltype(data)>(data),
+                                    tag_map_row);
 
   // Create new index if no other spot is available
   while (data_it != data.end()) {
@@ -172,11 +176,7 @@ auto Storage::store_base_(int64_t timestamp,
     auto idx = data_it - data.begin();
 
     row.emplace_back(std::move(*data_it));
-    auto tag_metadata = std::make_pair<int64_t, DataView>(
-      idx, std::cref(row.back())
-    );
-
-    tag_map_row.insert({row.back().get_tag(), std::move(tag_metadata)});
+    update_tag_container_data_(tag_map_row, idx, std::cref(row.back()));
     data_it++;
   }
 }
@@ -211,8 +211,6 @@ auto Storage::contains_base_(int64_t timestamp,
 
 auto Storage::erase_base_(int64_t timestamp,
                           std::string_view tag) noexcept -> void {
-
-  if (!contains_base_(timestamp, tag)) return ;
 
   auto tag_str = std::string(tag);
   auto &tags_map_list = tags_map_.at(timestamp);

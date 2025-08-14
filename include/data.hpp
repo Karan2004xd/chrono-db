@@ -2,11 +2,12 @@
 
 #include "constant.hpp"
 #include <cassert>
+#include <cmath>
 #include <optional>
-#include <string>
+#include <memory>
 
 class Data {
-  TEST_FRIEND(DataTest)
+  TEST_FRIEND(DataTest);
 
 public:
   enum class DataType {

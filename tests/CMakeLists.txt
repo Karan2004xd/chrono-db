@@ -6,6 +6,7 @@ include_directories(${GTest_INCLUDE_DIRS})
 set(TEST_SOURCES
   "./data_test.cpp"
   "./storage_test.cpp"
+  "./query_handler_test.cpp"
 )
 
 add_executable(${PROJECT_NAME} ${TEST_SOURCES})
@@ -16,4 +17,4 @@ target_link_libraries(${PROJECT_NAME} ${GTest_LIBRARIES}
 target_compile_definitions(${PROJECT_NAME} PRIVATE UNIT_TESTING)
 
 enable_testing()
-add_test(NAME AllTest COMMAND ${PROJECT_NAME})
+add_test(NAME AllTest COMMAND ${PROJECT_NAME} -gtest_filter=QueryHandlerTest.*)

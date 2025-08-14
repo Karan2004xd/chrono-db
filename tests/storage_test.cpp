@@ -2,7 +2,7 @@
 #include "../include/data.hpp"
 #include "../include/storage.hpp"
 
-class StorageTest : public ::testing::Test {
+class StorageTest {
 public:
   static auto copy_sementics() -> void {
     auto obj = Storage{};
@@ -57,35 +57,10 @@ public:
 
     EXPECT_EQ(obj.data_rows_[1].size(), 1);
 
-    // check only insert
+    // check insert
     obj.store(2, { Data {"test", "hello"}});
-    obj.store(2, { Data {"test", "hello world"}});
-    EXPECT_TRUE(obj.data_rows_[2][0] != (Data {2, "test", "hello world"}));
-
-    // check insert or update
-    obj.store(3, { Data {"test", "hello"}});
-    obj.store(3, { Data {"test", "hello world"}}, true);
-
-    EXPECT_TRUE(obj.data_rows_[3][0] == (Data {3, "test", "hello world"}));
-  }
-
-  static auto bulk_store() -> void {
-    auto obj = Storage{};
-    auto timestamps = std::vector<int64_t> {
-      1004, 1003, 1002, 1001
-    };
-    auto n = timestamps.size();
-
-    obj.store({
-      {timestamps[0], { Data {"test1", "value1"}} },
-      {timestamps[1], { Data {"test2", "value2"}} },
-      {timestamps[2], { Data {"test3", "value3"}} },
-      {timestamps[3], { Data {"test4", "value4"}} },
-    });
-
-    for (const auto &[ts, data] : obj.data_rows_) {
-      EXPECT_EQ(ts, timestamps[--n]);
-    }
+    obj.store(2, { Data {"test1", "hello world"}});
+    EXPECT_TRUE(obj.data_rows_[2][0] == (Data {2, "test1", "hello world"}));
   }
 
   static auto get_data() -> void {
@@ -225,9 +200,6 @@ public:
     EXPECT_TRUE(obj.data_rows_[1002][0] != data);
 
     obj.update(1003, {data.copy()});
-    EXPECT_FALSE(obj.data_rows_.contains(1003));
-
-    obj.update(1003, {data.copy()}, true);
     EXPECT_TRUE(obj.data_rows_.contains(1003));
   }
 
@@ -262,31 +234,8 @@ public:
     EXPECT_EQ(obj.data_rows_.size(), 2);
     EXPECT_EQ(obj.free_list_.at(1).size(), 1);
 
-    obj.store(1, { Data {"test3", "value3"}}, true);
+    obj.store(1, { Data {"test3", "value3"}});
     EXPECT_TRUE(obj.data_rows_.at(1)[1] == (Data {1, "test3", "value3"}));
-  }
-
-  static auto bulk_erase_data() -> void {
-    auto obj = Storage {};
-
-    obj.store({
-      {1, { 
-        Data {"test1", "value1"},
-        Data {"test1_2", "value1_2"},
-        Data {"test1_3", "value1_3"}
-      }},
-      {2, { Data {"test2", "value2"}} },
-      {3, { Data {"test3", "value3"}} },
-    });
-
-    // Erase multiple timestamps
-    obj.erase({2, 3});
-    EXPECT_EQ(obj.data_rows_.size(), 1);
-
-    // Erase multipe tags
-    obj.erase(1, {"test1_2", "test1_3"});
-    EXPECT_EQ(obj.tags_map_.at(1).size(), 1);
-    EXPECT_TRUE(obj.tags_map_.at(1).contains("test1"));
   }
 
 private:
@@ -358,54 +307,46 @@ private:
   }
 };
 
-TEST_F(StorageTest, CopySementicsTest) {
+TEST(StorageTest, CopySementicsTest) {
   StorageTest::copy_sementics();
 }
 
-TEST_F(StorageTest, MoveSementicsTest) {
+TEST(StorageTest, MoveSementicsTest) {
   StorageTest::move_sementics();
 }
 
-TEST_F(StorageTest, StoreDataTest) {
+TEST(StorageTest, StoreDataTest) {
   StorageTest::store();
 }
 
-TEST_F(StorageTest, BulkStoreDataTest) {
-  StorageTest::bulk_store();
-}
-
-TEST_F(StorageTest, GetSingleDataTest) {
+TEST(StorageTest, GetSingleDataTest) {
   StorageTest::get_single_data();
 }
 
-TEST_F(StorageTest, GetDataByTsTest) {
+TEST(StorageTest, GetDataByTsTest) {
   StorageTest::get_data();
 }
 
-TEST_F(StorageTest, GetDataInRangeTest) {
+TEST(StorageTest, GetDataInRangeTest) {
   StorageTest::get_data_in_range();
 }
 
-TEST_F(StorageTest, GetTagsTest) {
+TEST(StorageTest, GetTagsTest) {
   StorageTest::get_tags();
 }
 
-TEST_F(StorageTest, ContainsDataTest) {
+TEST(StorageTest, ContainsDataTest) {
   StorageTest::contains_data();
 }
 
-TEST_F(StorageTest, GetDataLengthTest) {
+TEST(StorageTest, GetDataLengthTest) {
   StorageTest::get_data_length();
 }
 
-TEST_F(StorageTest, UpdateData) {
+TEST(StorageTest, UpdateData) {
   StorageTest::update_data();
 }
 
-TEST_F(StorageTest, EraseData) {
+TEST(StorageTest, EraseData) {
   StorageTest::erase_data();
-}
-
-TEST_F(StorageTest, BulkEraseData) {
-  StorageTest::bulk_erase_data();
 }

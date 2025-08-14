@@ -3,11 +3,15 @@
 #include "constant.hpp"
 #include <map>
 #include <unordered_set>
+#include <unordered_map>
+#include <vector>
+#include <string>
+#include <optional>
 
 class Data;
 
 class Storage {
-  TEST_FRIEND(StorageTest)
+  TEST_FRIEND(StorageTest);
 
 public:
   using ListOfData = std::vector<Data>;
@@ -16,13 +20,11 @@ public:
   using DataView = std::reference_wrapper<const Data>;
   using DataViewList = std::vector<DataView>;
 
-  using TagsContainer = std::unordered_map<
-    int64_t, std::unordered_map<std::string, std::pair<int64_t, DataView>>>;
+  using TagsContainerData = std::unordered_map<std::string, std::pair<int64_t, DataView>>;
+  using TagsContainer = std::unordered_map<int64_t, TagsContainerData>;
 
   using TagNameView = std::reference_wrapper<const std::string>;
   using FreeListContainer = std::unordered_map<int64_t, std::unordered_set<int64_t>>;
-
-  using DataRows = std::initializer_list<std::pair<int64_t, ListOfData>>;
 
   Storage() = default;
 
@@ -33,10 +35,7 @@ public:
   auto operator=(Storage &&other) noexcept -> Storage &;
 
   auto store(int64_t timestamp,
-             std::vector<Data> &&data,
-             bool update_if_exist = false) noexcept -> void;
-
-  auto store(DataRows &&rows, bool update_if_exist = false) noexcept -> void;
+             ListOfData &&data) noexcept -> void;
 
   auto get_data(int64_t timestamp) const noexcept
     -> DataViewList;
@@ -54,22 +53,28 @@ public:
   auto get_length(int64_t timestamp) const noexcept -> int64_t;
 
   auto update(int64_t timestamp,
-              std::vector<Data> &&data,
-              bool insert_if_not_exist = false) noexcept -> void;
+              std::vector<Data> &&data) noexcept -> void;
 
   auto erase(int64_t timestamp) noexcept -> void;
   auto erase(int64_t timestamp, std::string_view tag) noexcept -> void;
-
-  auto erase(const std::initializer_list<int64_t> &timestamps) noexcept -> void;
-  auto erase(int64_t timestamp,
-             const std::initializer_list<std::string> &tags) noexcept -> void;
 
 private:
   Container data_rows_;
   TagsContainer tags_map_;
   FreeListContainer free_list_;
 
-  auto store_base_(int64_t timestamp, std::vector<Data> &&data) noexcept -> void;
+  auto update_tag_container_data_(TagsContainerData &tag_cont_data_ref,
+                                  int64_t index,
+                                  DataView &&view) noexcept -> void;
+
+  auto update_free_space_(int64_t timestamp,
+                          ListOfData &&data,
+                          TagsContainerData &tag_cont_data_ref)
+    noexcept -> ListOfData::iterator;
+
+  auto store_base_(int64_t timestamp,
+                   ListOfData &&data) noexcept -> void;
+
   auto get_data_base_(int64_t timestamp) const noexcept -> DataViewList;
   auto contains_base_(int64_t timestamp,
                       std::string_view tag = {}) const noexcept -> bool;
