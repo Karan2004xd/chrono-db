@@ -1,7 +1,6 @@
 #include "../include/iterator_wrapper.hpp"
 
-IteratorWrapper::IteratorWrapper(std::unique_ptr<Iterator> iter) {
-  iter_ = std::move(iter);
+IteratorWrapper::IteratorWrapper(Iterator &&begin, Iterator &&end) {
 }
 
 auto IteratorWrapper::operator->() const -> const Row * {
@@ -22,13 +21,8 @@ auto IteratorWrapper::operator--() -> IteratorWrapper & {
   return *this;
 }
 
-auto IteratorWrapper::check_equality_base_(
-  const IteratorWrapper &other) const noexcept -> bool {
-
-  if (!iter_ && !other.iter_) return true;
-  if (!iter_ || !other.iter_) return false;
-
-  return *iter_ == *other.iter_;
+auto IteratorWrapper::is_valid() const noexcept -> bool {
+  return iter_ != nullptr;
 }
 
 auto IteratorWrapper::operator!=(const IteratorWrapper &other) const -> bool {
@@ -37,4 +31,13 @@ auto IteratorWrapper::operator!=(const IteratorWrapper &other) const -> bool {
 
 auto IteratorWrapper::operator==(const IteratorWrapper &other) const -> bool {
   return check_equality_base_(other);
+}
+
+auto IteratorWrapper::check_equality_base_(
+  const IteratorWrapper &other) const noexcept -> bool {
+
+  if (!iter_ && !other.iter_) return true;
+  if (!iter_ || !other.iter_) return false;
+
+  return *iter_ == *other.iter_;
 }

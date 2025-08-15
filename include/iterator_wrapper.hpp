@@ -11,7 +11,7 @@ public:
 
   using Row = std::pair<int64_t, DataViewList>;
 
-  explicit IteratorWrapper(std::unique_ptr<Iterator> iter);
+  explicit IteratorWrapper(Iterator &&begin, Iterator &&end);
 
   auto operator*() const -> const Row &;
   auto operator->() const -> const Row *;
@@ -22,7 +22,10 @@ public:
   auto operator!=(const IteratorWrapper &other) const -> bool;
   auto operator==(const IteratorWrapper &other) const -> bool;
 
+  auto is_valid() const noexcept -> bool;
+
 private:
+  std::unique_ptr<Iterator> begin_, end_;
   std::unique_ptr<Iterator> iter_;
 
   auto check_equality_base_(const IteratorWrapper &other) const noexcept -> bool;
