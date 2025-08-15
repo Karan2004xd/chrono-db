@@ -40,13 +40,10 @@ public:
                          bool ascending = true) const noexcept
   -> std::vector<DataViewList> override;
 
-  auto begin_range(int64_t start_ts,
-                   int64_t end_ts,
-                   bool ascending) const noexcept -> IteratorWrapper override;
-
-  auto end_range(int64_t start_ts,
-                 int64_t end_ts,
-                 bool ascending) const noexcept -> IteratorWrapper override;
+  auto get_data_view(int64_t start_ts,
+                     int64_t end_ts,
+                     bool ascending = true) const noexcept
+  -> View<RangeIterator<RangeDataIter>> override;
 
   auto contains(int64_t timestamp) const noexcept -> bool override;
   auto contains(int64_t timestamp,

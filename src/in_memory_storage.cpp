@@ -1,6 +1,5 @@
 #include "../include/in_memory_storage.hpp"
-#include "../include/data.hpp"
-#include "../include/range_iterator.hpp"
+#include "../include/view.hpp"
 
 InMemoryStorage::InMemoryStorage(const InMemoryStorage &other)
   : data_rows_(other.data_rows_), tags_map_(other.tags_map_) {}
@@ -63,23 +62,20 @@ auto InMemoryStorage::get_data_in_range(int64_t start_ts,
   return range_data;
 }
 
-auto InMemoryStorage::begin_range(int64_t start_ts,
-                                  int64_t end_ts,
-                                  bool ascending) const noexcept -> IteratorWrapper {
-  auto wrapper = IteratorWrapper (std::make_unique<RangeIterator<Container::const_iterator>>(
-    ascending ? data_rows_.lower_bound(start_ts) : data_rows_.upper_bound(end_ts), ascending
-  ));
-  return wrapper;
-}
+auto InMemoryStorage::get_data_view(int64_t start_ts,
+                                    int64_t end_ts,
+                                    bool ascending) const noexcept 
+  -> View<RangeIterator<RangeDataIter>> {
 
-auto InMemoryStorage::end_range(int64_t start_ts,
-                                int64_t end_ts,
-                                bool ascending) const noexcept -> IteratorWrapper {
+  auto start = data_rows_.lower_bound(start_ts);
+  auto end = data_rows_.upper_bound(end_ts);
 
-  auto wrapper = IteratorWrapper (std::make_unique<RangeIterator<Container::const_iterator>>(
-    ascending ? data_rows_.upper_bound(end_ts) : data_rows_.lower_bound(start_ts), ascending
-  ));
-  return wrapper;
+  if (!ascending) {
+    start = data_rows_.upper_bound(start_ts);
+    end = data_rows_.lower_bound(end_ts);
+  }
+  auto data_view = make_data_view(start, end, ascending);
+  return data_view;
 }
 
 auto InMemoryStorage::contains(int64_t timestamp) const noexcept -> bool {

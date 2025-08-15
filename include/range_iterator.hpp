@@ -3,9 +3,12 @@
 #include "iterator.hpp"
 #include <map>
 
+using RangeData = std::map<int64_t, std::vector<Data>>;
+using RangeDataIter = RangeData::const_iterator;
+
 template <std::input_iterator ConstIterator>
 class RangeIterator : public Iterator {
-  static_assert(std::is_same_v<ConstIterator, std::map<int64_t, std::vector<Data>>::const_iterator>,
+  static_assert(std::is_same_v<ConstIterator, RangeDataIter>,
                 "ConstIterator must be a std::map const_iterator");
 
   TEST_FRIEND(RangeIteratorTest);

@@ -127,9 +127,16 @@ public:
     auto obj = QueryHandler(StorageFactory::get_in_memory_storage());
     std::vector<int> vec {1, 2, 5, 4};
 
-    obj.filter(vec.begin(), vec.end(), [](const auto &val) {
-      return val >= 2;
-    });
+    auto result_data = obj.get_data_base_(1001, 1003, [](const Data &data) -> bool {
+      return data.get_timestamp() % 2 == 0;
+    }, 10);
+
+    for (const auto &[ts, data_list] : result_data) {
+      std::cout << ts << "\n\t";
+      for (const auto &data : data_list) {
+        std::cout << data.get().get_tag() << std::endl;
+      }
+    }
   }
 };
 

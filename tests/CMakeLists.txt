@@ -8,7 +8,7 @@ set(TEST_SOURCES
   "./query_handler_test.cpp"
   "./in_memory_storage_test.cpp"
   "./range_iterator_test.cpp"
-  "./iterator_wrapper_test.cpp"
+  "./view_test.cpp"
 )
 
 add_executable(${PROJECT_NAME} ${TEST_SOURCES})

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "constant.hpp"
+#include <functional>
 #include <memory>
 #include <vector>
 
@@ -51,23 +52,24 @@ public:
   auto erase(int64_t timestamp,
              const ListOfValues<std::string> &tag_names) noexcept -> void;
 
-  template <typename Iterator, typename Func>
-  auto filter(Iterator begin, Iterator end, Func &&func) -> void {
-    using traits = std::iterator_traits<Iterator>;
+  // template <typename Iterator, typename Func>
+  // auto filter(Iterator begin, Iterator end, Func &&func) -> void {
+  //   using traits = std::iterator_traits<Iterator>;
 
-    static_assert(!std::is_same_v<typename traits::value_type, void>,
-    "Iterator type is not a valid iterator (no value types)");
+  //   static_assert(!std::is_same_v<typename traits::value_type, void>,
+  //   "Iterator type is not a valid iterator (no value types)");
 
-    static_assert(std::is_same_v<Iterator, decltype(end)>,
-    "begin and end iterators must have same types");
+  //   static_assert(std::is_same_v<Iterator, decltype(end)>,
+  //   "begin and end iterators must have same types");
 
-    using func_value_type = typename std::iterator_traits<Iterator>::value_type;
-    static_assert(is_invocable_with_n_arg_<Func, func_value_type>::count <= 2,
-    "Func must take exactly one argument of the iterator's value type");
-  }
+  //   using func_value_type = typename std::iterator_traits<Iterator>::value_type;
+  //   static_assert(is_invocable_with_n_arg_<Func, func_value_type>::count <= 2,
+  //   "Func must take exactly one argument of the iterator's value type");
+  // }
 
 private:
   std::unique_ptr<Storage> db_ = nullptr;
+  using Predicate = std::function<bool(const DataView)>;
 
   template <typename Func, typename... Args>
   struct is_invocable_with_n_arg_ {
@@ -75,11 +77,8 @@ private:
     static constexpr size_t count = sizeof...(Args);
   };
 
-  template <typename Pred>
   auto get_data_base_(int64_t start_ts,
                       int64_t end_ts,
-                      Pred &&func = []{},
-                      int limit = -1,
-                      bool ascending = true) const -> Row {
-  }
+                      Predicate &&func,
+                      int limit = -1) const -> Row;
 };

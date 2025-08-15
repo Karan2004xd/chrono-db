@@ -13,12 +13,6 @@ struct Iterator {
   using pointer = const Row *;
   using reference = const Row &;
 
-  Iterator(const Iterator &) = default;
-  Iterator(Iterator &&) noexcept = default;
-
-  auto operator=(const Iterator &) -> Iterator & = default;
-  auto operator=(Iterator &&) noexcept -> Iterator & = default;
-
   virtual ~Iterator() = default;
   virtual auto operator!=(const Iterator &other) -> bool = 0;
   virtual auto operator==(const Iterator &other) -> bool = 0;

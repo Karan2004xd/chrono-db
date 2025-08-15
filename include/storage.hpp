@@ -1,8 +1,9 @@
 #pragma once
 
-#include "iterator_wrapper.hpp"
 #include <optional>
 #include "data.hpp"
+#include "view.hpp"
+#include <vector>
 
 class Storage {
 public:
@@ -34,14 +35,10 @@ public:
                                  bool ascending = true) const noexcept
     -> std::vector<DataViewList> = 0;
 
-  virtual auto begin_range(int64_t start_ts,
-                           int64_t end_ts,
-                           bool ascending) const noexcept -> IteratorWrapper = 0;
-
-  virtual auto end_range(int64_t start_ts,
-                         int64_t end_ts,
-                         bool ascending) const noexcept -> IteratorWrapper = 0;
-
+  virtual auto get_data_view(int64_t start_ts,
+                             int64_t end_ts,
+                             bool ascending) const noexcept
+  -> View<RangeIterator<RangeDataIter>> = 0;
 
   virtual auto contains(int64_t timestamp) const noexcept -> bool = 0;
   virtual auto contains(int64_t timestamp,

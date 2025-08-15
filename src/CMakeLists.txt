@@ -5,7 +5,6 @@ add_library(${PROJECT_NAME}
   "./query_handler.cpp"
   "./in_memory_storage.cpp"
   "./storage_factory.cpp"
-  "./iterator_wrapper.cpp"
 )
 
 target_link_directories(

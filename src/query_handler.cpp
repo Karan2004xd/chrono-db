@@ -75,3 +75,7 @@ auto QueryHandler::erase(int64_t timestamp,
     db_->erase(timestamp, tag_name);
   }
 }
+
+auto QueryHandler::get_data_base_(int64_t start_ts, int64_t end_ts,
+                                  Predicate &&func, int limit) const -> Row {
+}
