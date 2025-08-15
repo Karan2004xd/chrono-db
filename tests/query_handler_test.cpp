@@ -1,17 +1,18 @@
 #include "gtest/gtest.h"
 #include "../include/query_handler.hpp"
-#include "../include/storage.hpp"
+#include "../include/in_memory_storage.hpp"
+#include "../include/storage_factory.hpp"
 #include "../include/data.hpp"
 
 class QueryHandlerTest {
 public:
   static auto constructor_test() -> void {
-    auto obj = QueryHandler(Storage());
+    auto obj = QueryHandler(StorageFactory::get_in_memory_storage());
     EXPECT_FALSE(obj.db_ == nullptr);
   }
 
   static auto semantics() -> void {
-    auto obj = QueryHandler(Storage());
+    auto obj = QueryHandler(StorageFactory::get_in_memory_storage());
     auto obj2 = std::move(obj);
 
     EXPECT_EQ(obj.db_, nullptr);
@@ -19,7 +20,7 @@ public:
   }
 
   static auto single_insert() -> void {
-    auto obj = QueryHandler(Storage());
+    auto obj = QueryHandler(StorageFactory::get_in_memory_storage());
 
     // insert without update
     obj.insert(1002, { Data {"test", "value"} });
@@ -33,7 +34,7 @@ public:
   }
 
   static auto bulk_insert() -> void {
-    auto obj = QueryHandler(Storage());
+    auto obj = QueryHandler(StorageFactory::get_in_memory_storage());
     auto timestamps = std::vector<int64_t>{1, 2, 3, 4};
 
     obj.insert({
@@ -51,7 +52,7 @@ public:
   }
 
   static auto single_update() -> void {
-    auto obj = QueryHandler(Storage());
+    auto obj = QueryHandler(StorageFactory::get_in_memory_storage());
 
     obj.insert(1, { Data {"test1", "value1"}, Data {"test1_2", "value1_2"} });
     obj.update(1, { Data {"test2", "value2"} });
@@ -65,7 +66,7 @@ public:
   }
 
   static auto bulk_update() -> void {
-    auto obj = QueryHandler(Storage());
+    auto obj = QueryHandler(StorageFactory::get_in_memory_storage());
 
     obj.insert({
       {1, { Data {"test1", "value1"}} },
@@ -93,7 +94,7 @@ public:
   }
 
   static auto single_erase() -> void {
-    auto obj = QueryHandler(Storage());
+    auto obj = QueryHandler(StorageFactory::get_in_memory_storage());
 
     obj.insert(1, { Data {"test1", "value1"}, Data {"test2", "value2"}});
     obj.erase(1, "test1");
@@ -106,7 +107,7 @@ public:
   }
 
   static auto bulk_erase() -> void {
-    auto obj = QueryHandler(Storage());
+    auto obj = QueryHandler(StorageFactory::get_in_memory_storage());
 
     obj.insert({
       {1, { Data {"test0", "value0"}, Data {"test1", "value1"}, Data {"test2", "value2"}} },
@@ -123,7 +124,7 @@ public:
   }
 
   static auto get_data() -> void {
-    auto obj = QueryHandler(Storage());
+    auto obj = QueryHandler(StorageFactory::get_in_memory_storage());
     std::vector<int> vec {1, 2, 5, 4};
 
     obj.filter(vec.begin(), vec.end(), [](const auto &val) {

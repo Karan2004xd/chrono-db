@@ -1,15 +1,15 @@
 #include "gtest/gtest.h"
 #include "../include/data.hpp"
-#include "../include/storage.hpp"
+#include "../include/in_memory_storage.hpp"
 
-class StorageTest {
+class InMemoryStorageTest {
 public:
   static auto copy_sementics() -> void {
-    auto obj = Storage{};
+    auto obj = InMemoryStorage{};
     obj.store(1002, { Data {"test", "hello"} });
 
     // Copy Constructor
-    auto obj2 = Storage {obj};
+    auto obj2 = InMemoryStorage {obj};
     check_if_objects_equal_(obj, obj2);
 
     // Copy Assignment
@@ -18,23 +18,23 @@ public:
   }
 
   static auto move_sementics() -> void {
-    auto obj = Storage{};
+    auto obj = InMemoryStorage{};
     obj.store(1002, { Data {"test", "hello"} });
     auto temp = obj;
 
     // Move Constructor
-    auto obj2 = Storage {std::move(obj)};
+    auto obj2 = InMemoryStorage {std::move(obj)};
     check_if_objects_equal_(obj2, temp);
-    check_if_objects_equal_(obj, Storage {});
+    check_if_objects_equal_(obj, InMemoryStorage {});
 
     // Move Assignment
     auto obj3 = std::move(obj2);
     check_if_objects_equal_(obj3, temp);
-    check_if_objects_equal_(obj2, Storage {});
+    check_if_objects_equal_(obj2, InMemoryStorage {});
   }
 
   static auto store() -> void {
-    auto obj = Storage{};
+    auto obj = InMemoryStorage{};
     auto n = 4;
     auto timestamps = std::vector<int64_t> {
       1004, 1003, 1002, 1001
@@ -64,7 +64,7 @@ public:
   }
 
   static auto get_data() -> void {
-    auto obj = Storage{};
+    auto obj = InMemoryStorage{};
     auto timestamps = std::vector<int64_t> {1001, 1002, 1003};
     auto n = 3;
 
@@ -96,7 +96,7 @@ public:
   }
 
   static auto get_single_data() -> void {
-    auto obj = Storage{};
+    auto obj = InMemoryStorage{};
     auto data = Data {"test", "hello"};
     obj.store(1002, {data});
 
@@ -110,7 +110,7 @@ public:
   }
 
   static auto get_data_in_range() -> void {
-    auto obj = Storage{};
+    auto obj = InMemoryStorage{};
     auto timestamps = std::vector<int64_t> {1001, 1002, 1003};
     auto n = 3;
 
@@ -139,10 +139,15 @@ public:
     // start timestamp and end timestamp both larger then maximum 
     returned_data_refs = obj.get_data_in_range(10000, 20000);
     EXPECT_TRUE(returned_data_refs.empty());
+
+    // data in descending order
+    returned_data_refs = obj.get_data_in_range(1001, 1003, false);
+    EXPECT_EQ(returned_data_refs.front().front().get().get_timestamp(), 1003);
+    EXPECT_EQ(returned_data_refs.back().front().get().get_timestamp(), 1001);
   }
 
   static auto get_tags() -> void {
-    auto obj = Storage {};
+    auto obj = InMemoryStorage {};
     obj.store(1002, { Data {"test", 1002}, Data {"test2" , "value"} });
 
     const auto &tag_names = obj.get_tags(1002);
@@ -164,7 +169,7 @@ public:
   }
 
   static auto contains_data() -> void {
-    auto obj = Storage{};
+    auto obj = InMemoryStorage{};
     auto data = Data {"test", "hello"};
 
     obj.store(1002, {data.copy()});
@@ -180,7 +185,7 @@ public:
   }
 
   static auto get_data_length() -> void {
-    auto obj = Storage{};
+    auto obj = InMemoryStorage{};
     auto data = Data {"test", "hello"};
 
     obj.store(1002, {data.copy()});
@@ -191,7 +196,7 @@ public:
   }
 
   static auto update_data() -> void {
-    auto obj = Storage{};
+    auto obj = InMemoryStorage{};
     auto data = Data {"test", "hello"};
 
     obj.store(1002, {data.copy()});
@@ -204,7 +209,7 @@ public:
   }
 
   static auto erase_data() -> void {
-    auto obj = Storage{};
+    auto obj = InMemoryStorage{};
     auto data = Data {"test", "hello"};
 
     // Timestamp delete
@@ -261,8 +266,8 @@ private:
     return data;
   }
 
-  static auto check_if_objects_equal_(const Storage &obj1,
-                                      const Storage &obj2) -> void {
+  static auto check_if_objects_equal_(const InMemoryStorage &obj1,
+                                      const InMemoryStorage &obj2) -> void {
 
     // Check for Data object container equality
     EXPECT_EQ(obj1.data_rows_.size(), obj2.data_rows_.size());
@@ -307,46 +312,46 @@ private:
   }
 };
 
-TEST(StorageTest, CopySementicsTest) {
-  StorageTest::copy_sementics();
+TEST(InMemoryStorageTest, CopySementicsTest) {
+  InMemoryStorageTest::copy_sementics();
 }
 
-TEST(StorageTest, MoveSementicsTest) {
-  StorageTest::move_sementics();
+TEST(InMemoryStorageTest, MoveSementicsTest) {
+  InMemoryStorageTest::move_sementics();
 }
 
-TEST(StorageTest, StoreDataTest) {
-  StorageTest::store();
+TEST(InMemoryStorageTest, StoreDataTest) {
+  InMemoryStorageTest::store();
 }
 
-TEST(StorageTest, GetSingleDataTest) {
-  StorageTest::get_single_data();
+TEST(InMemoryStorageTest, GetSingleDataTest) {
+  InMemoryStorageTest::get_single_data();
 }
 
-TEST(StorageTest, GetDataByTsTest) {
-  StorageTest::get_data();
+TEST(InMemoryStorageTest, GetDataByTsTest) {
+  InMemoryStorageTest::get_data();
 }
 
-TEST(StorageTest, GetDataInRangeTest) {
-  StorageTest::get_data_in_range();
+TEST(InMemoryStorageTest, GetDataInRangeTest) {
+  InMemoryStorageTest::get_data_in_range();
 }
 
-TEST(StorageTest, GetTagsTest) {
-  StorageTest::get_tags();
+TEST(InMemoryStorageTest, GetTagsTest) {
+  InMemoryStorageTest::get_tags();
 }
 
-TEST(StorageTest, ContainsDataTest) {
-  StorageTest::contains_data();
+TEST(InMemoryStorageTest, ContainsDataTest) {
+  InMemoryStorageTest::contains_data();
 }
 
-TEST(StorageTest, GetDataLengthTest) {
-  StorageTest::get_data_length();
+TEST(InMemoryStorageTest, GetDataLengthTest) {
+  InMemoryStorageTest::get_data_length();
 }
 
-TEST(StorageTest, UpdateData) {
-  StorageTest::update_data();
+TEST(InMemoryStorageTest, UpdateData) {
+  InMemoryStorageTest::update_data();
 }
 
-TEST(StorageTest, EraseData) {
-  StorageTest::erase_data();
+TEST(InMemoryStorageTest, EraseData) {
+  InMemoryStorageTest::erase_data();
 }

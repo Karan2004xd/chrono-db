@@ -19,7 +19,7 @@
 		"files" : 
 		[
 			"tests/CMakeLists.txt",
-			"/opt/homebrew/share/cmake/Modules/FindGTest.cmake"
+			"/usr/share/cmake/Modules/FindGTest.cmake"
 		],
 		"nodes" : 
 		[
@@ -29,13 +29,13 @@
 			{
 				"command" : 0,
 				"file" : 0,
-				"line" : 12,
+				"line" : 14,
 				"parent" : 0
 			},
 			{
 				"command" : 1,
 				"file" : 0,
-				"line" : 13,
+				"line" : 15,
 				"parent" : 0
 			},
 			{
@@ -69,7 +69,7 @@
 			{
 				"command" : 4,
 				"file" : 0,
-				"line" : 17,
+				"line" : 19,
 				"parent" : 0
 			}
 		]
@@ -80,22 +80,18 @@
 			"compileCommandFragments" : 
 			[
 				{
-					"fragment" : " -Wall -Wextra -Wpedantic -std=c++20 -arch arm64"
+					"fragment" : " -Wall -Wextra -Wpedantic -std=c++20"
 				}
 			],
 			"defines" : 
 			[
 				{
+					"backtrace" : 2,
+					"define" : "GTEST_LINKED_AS_SHARED_LIBRARY=1"
+				},
+				{
 					"backtrace" : 8,
 					"define" : "UNIT_TESTING"
-				}
-			],
-			"includes" : 
-			[
-				{
-					"backtrace" : 2,
-					"isSystem" : true,
-					"path" : "/opt/homebrew/include"
 				}
 			],
 			"language" : "CXX",
@@ -111,7 +107,9 @@
 			[
 				0,
 				1,
-				2
+				2,
+				3,
+				4
 			]
 		}
 	],
@@ -133,11 +131,11 @@
 			},
 			{
 				"backtrace" : 2,
-				"fragment" : "-L/Users/karan/Development/chrono-db/include",
+				"fragment" : "-L/home/karan/Documents/Code/chrono-db/include",
 				"role" : "libraryPath"
 			},
 			{
-				"fragment" : "-Wl,-rpath,/Users/karan/Development/chrono-db/include",
+				"fragment" : "-Wl,-rpath,/home/karan/Documents/Code/chrono-db/include",
 				"role" : "libraries"
 			},
 			{
@@ -147,12 +145,12 @@
 			},
 			{
 				"backtrace" : 6,
-				"fragment" : "/opt/homebrew/lib/libgtest_main.a",
+				"fragment" : "/usr/lib/libgtest_main.so.1.17.0",
 				"role" : "libraries"
 			},
 			{
 				"backtrace" : 7,
-				"fragment" : "/opt/homebrew/lib/libgtest.a",
+				"fragment" : "/usr/lib/libgtest.so.1.17.0",
 				"role" : "libraries"
 			}
 		],
@@ -173,7 +171,9 @@
 			[
 				0,
 				1,
-				2
+				2,
+				3,
+				4
 			]
 		}
 	],
@@ -188,13 +188,25 @@
 		{
 			"backtrace" : 1,
 			"compileGroupIndex" : 0,
-			"path" : "tests/storage_test.cpp",
+			"path" : "tests/query_handler_test.cpp",
 			"sourceGroupIndex" : 0
 		},
 		{
 			"backtrace" : 1,
 			"compileGroupIndex" : 0,
-			"path" : "tests/query_handler_test.cpp",
+			"path" : "tests/in_memory_storage_test.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "tests/range_iterator_test.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "tests/iterator_wrapper_test.cpp",
 			"sourceGroupIndex" : 0
 		}
 	],

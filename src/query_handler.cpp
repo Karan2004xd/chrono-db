@@ -2,10 +2,6 @@
 #include "../include/storage.hpp"
 #include "../include/data.hpp"
 
-QueryHandler::QueryHandler(Storage &&db) {
-  db_ = std::make_unique<Storage>(std::forward<decltype(db)>(db));
-}
-
 QueryHandler::QueryHandler(QueryHandler &&other) noexcept {
   db_ = std::move(other.db_);
 }

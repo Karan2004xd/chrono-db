@@ -1,10 +1,8 @@
 #pragma once
 
 #include "constant.hpp"
-#include <iostream>
 #include <memory>
 #include <vector>
-#include <iterator>
 
 class Storage;
 class Data;
@@ -19,7 +17,17 @@ public:
   template <typename T>
   using ListOfValues = std::initializer_list<T>;
 
-  QueryHandler(Storage &&db);
+  using DataView = std::reference_wrapper<Data>;
+  using DataViewList = std::vector<DataView>;
+
+  using Row = std::vector<std::pair<int64_t, DataViewList>>;
+
+  template <typename T>
+  QueryHandler(T &&db) {
+    using decayed_T = std::decay_t<T>;
+    static_assert(std::is_base_of_v<Storage, decayed_T>, "T must derive from Storage class");
+    db_ = std::make_unique<decayed_T>(std::forward<T>(db));
+  }
 
   QueryHandler(const QueryHandler &other) = delete;
   QueryHandler(QueryHandler &&other) noexcept;
@@ -54,17 +62,24 @@ public:
     "begin and end iterators must have same types");
 
     using func_value_type = typename std::iterator_traits<Iterator>::value_type;
-    static_assert(is_invocable_with_one_arg_<Func, func_value_type>::value,
+    static_assert(is_invocable_with_n_arg_<Func, func_value_type>::count <= 2,
     "Func must take exactly one argument of the iterator's value type");
   }
 
 private:
   std::unique_ptr<Storage> db_ = nullptr;
 
-  template <typename Func, typename Arg>
-  struct is_invocable_with_one_arg_ {
-    static constexpr bool value =
-      std::is_invocable_v<Func, Arg> &&
-      !std::is_invocable_v<Func, Arg, Arg>;
+  template <typename Func, typename... Args>
+  struct is_invocable_with_n_arg_ {
+    static constexpr bool value = std::is_invocable_r_v<bool, Func, Args...>;
+    static constexpr size_t count = sizeof...(Args);
   };
+
+  template <typename Pred>
+  auto get_data_base_(int64_t start_ts,
+                      int64_t end_ts,
+                      Pred &&func = []{},
+                      int limit = -1,
+                      bool ascending = true) const -> Row {
+  }
 };

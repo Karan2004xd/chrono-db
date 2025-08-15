@@ -1,84 +1,62 @@
 #pragma once
 
-#include "constant.hpp"
-#include <map>
-#include <unordered_set>
-#include <unordered_map>
-#include <vector>
-#include <string>
+#include "iterator_wrapper.hpp"
 #include <optional>
-
-class Data;
+#include "data.hpp"
 
 class Storage {
-  TEST_FRIEND(StorageTest);
-
 public:
   using ListOfData = std::vector<Data>;
-  using Container = std::map<int64_t, ListOfData>;
 
   using DataView = std::reference_wrapper<const Data>;
   using DataViewList = std::vector<DataView>;
 
-  using TagsContainerData = std::unordered_map<std::string, std::pair<int64_t, DataView>>;
-  using TagsContainer = std::unordered_map<int64_t, TagsContainerData>;
-
   using TagNameView = std::reference_wrapper<const std::string>;
-  using FreeListContainer = std::unordered_map<int64_t, std::unordered_set<int64_t>>;
 
   Storage() = default;
 
-  Storage(const Storage &other);
-  Storage(Storage &&other) noexcept;
+  Storage(const Storage &other) = default;
+  Storage(Storage &&other) noexcept = default;
 
-  auto operator=(const Storage &other) noexcept -> Storage &;
-  auto operator=(Storage &&other) noexcept -> Storage &;
+  auto operator=(const Storage &other) noexcept -> Storage & = default;
+  auto operator=(Storage &&other) noexcept -> Storage & = default;
 
-  auto store(int64_t timestamp,
-             ListOfData &&data) noexcept -> void;
+  virtual auto store(int64_t timestamp,
+                     ListOfData &&data) noexcept -> void = 0;
 
-  auto get_data(int64_t timestamp) const noexcept
-    -> DataViewList;
-  auto get_data(int64_t timestamp, std::string_view tag_name) const noexcept
-    -> std::optional<DataView>;
-  auto get_data_in_range(int64_t start_ts, int64_t end_ts) const noexcept
-    -> std::vector<DataViewList>;
+  virtual auto get_data(int64_t timestamp) const noexcept
+    -> DataViewList = 0;
+  virtual auto get_data(int64_t timestamp, std::string_view tag_name) const noexcept
+    -> std::optional<DataView> = 0;
 
-  auto contains(int64_t timestamp) const noexcept -> bool;
-  auto contains(int64_t timestamp, std::string_view tag_name) const noexcept -> bool;
+  virtual auto get_data_in_range(int64_t start_ts,
+                                 int64_t end_ts,
+                                 bool ascending = true) const noexcept
+    -> std::vector<DataViewList> = 0;
 
-  auto get_tags(int64_t timestamp) const noexcept -> std::vector<TagNameView>;
+  virtual auto begin_range(int64_t start_ts,
+                           int64_t end_ts,
+                           bool ascending) const noexcept -> IteratorWrapper = 0;
 
-  auto get_length() const noexcept -> int64_t;
-  auto get_length(int64_t timestamp) const noexcept -> int64_t;
+  virtual auto end_range(int64_t start_ts,
+                         int64_t end_ts,
+                         bool ascending) const noexcept -> IteratorWrapper = 0;
 
-  auto update(int64_t timestamp,
-              std::vector<Data> &&data) noexcept -> void;
 
-  auto erase(int64_t timestamp) noexcept -> void;
-  auto erase(int64_t timestamp, std::string_view tag) noexcept -> void;
+  virtual auto contains(int64_t timestamp) const noexcept -> bool = 0;
+  virtual auto contains(int64_t timestamp,
+                        std::string_view tag_name) const noexcept -> bool = 0;
 
-private:
-  Container data_rows_;
-  TagsContainer tags_map_;
-  FreeListContainer free_list_;
+  virtual auto get_tags(int64_t timestamp) const noexcept
+    -> std::vector<TagNameView> = 0;
 
-  auto update_tag_container_data_(TagsContainerData &tag_cont_data_ref,
-                                  int64_t index,
-                                  DataView &&view) noexcept -> void;
+  virtual auto get_length() const noexcept -> int64_t = 0;
+  virtual auto get_length(int64_t timestamp) const noexcept -> int64_t = 0;
 
-  auto update_free_space_(int64_t timestamp,
-                          ListOfData &&data,
-                          TagsContainerData &tag_cont_data_ref)
-    noexcept -> ListOfData::iterator;
+  virtual auto update(int64_t timestamp,
+                      std::vector<Data> &&data) noexcept -> void = 0;
 
-  auto store_base_(int64_t timestamp,
-                   ListOfData &&data) noexcept -> void;
-
-  auto get_data_base_(int64_t timestamp) const noexcept -> DataViewList;
-  auto contains_base_(int64_t timestamp,
-                      std::string_view tag = {}) const noexcept -> bool;
-
-  auto erase_base_(int64_t timestamp,
-                   std::string_view tag = {}) noexcept -> void;
+  virtual auto erase(int64_t timestamp) noexcept -> void = 0;
+  virtual auto erase(int64_t timestamp,
+                     std::string_view tag) noexcept -> void = 0;
 };
