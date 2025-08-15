@@ -33,13 +33,11 @@ public:
   }
 
   auto operator*() const -> reference override {
-    DataViewList views;
+    return get_current_data_().first;
+  }
 
-    for (const auto &data : iter_->second) {
-      views.emplace_back(std::cref(data));
-    }
-    current_ = {iter_->first, std::move(views)};
-    return current_;
+  auto operator->() const -> pointer override {
+    return get_current_data_().second;
   }
 
 private:
@@ -51,4 +49,14 @@ private:
     const auto *other_it = dynamic_cast<const RangeIterator *>(&other);
     return other_it && iter_ == other_it->iter_;
   }
+
+  auto get_current_data_() const -> std::pair<reference, pointer> {
+    DataViewList views;
+
+    for (const auto &data : iter_->second) {
+      views.emplace_back(std::cref(data));
+    }
+    current_ = {iter_->first, std::move(views)};
+    return {current_, &current_};
+  };
 };

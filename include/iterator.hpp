@@ -21,4 +21,5 @@ struct Iterator {
   virtual auto operator--() -> Iterator & = 0;
 
   virtual auto operator*() const -> reference = 0;
+  virtual auto operator->() const -> pointer = 0;
 };

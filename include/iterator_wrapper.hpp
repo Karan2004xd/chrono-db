@@ -14,6 +14,7 @@ public:
   explicit IteratorWrapper(std::unique_ptr<Iterator> iter);
 
   auto operator*() const -> const Row &;
+  auto operator->() const -> const Row *;
 
   auto operator++() -> IteratorWrapper &;
   auto operator--() -> IteratorWrapper &;

@@ -4,6 +4,10 @@ IteratorWrapper::IteratorWrapper(std::unique_ptr<Iterator> iter) {
   iter_ = std::move(iter);
 }
 
+auto IteratorWrapper::operator->() const -> const Row * {
+  return &(**iter_);
+}
+
 auto IteratorWrapper::operator*() const -> const Row & {
   return **iter_;
 }
