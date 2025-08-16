@@ -12,8 +12,34 @@ class View {
   );
 
 public:
+  View() = default;
+
   View(IteratorType begin_it, IteratorType end_it)
     : begin_it_(begin_it), end_it_(end_it) {}
+
+  View(const View &other) 
+    : begin_it_(other.begin_it_), end_it_(other.end_it_) {}
+
+  auto operator=(const View &other) {
+    begin_it_ = other.begin_it_;
+    end_it_ = other.end_it_;
+  }
+  
+  auto operator=(View &&other) noexcept {
+    begin_it_ = std::move(other.begin_it_);
+    end_it_ = std::move(other.end_it_);
+
+    begin_it_ = IteratorType{};
+    end_it_ = IteratorType{};
+  }
+
+  View(View &&other) noexcept {
+    begin_it_ = std::move(other.begin_it_);
+    end_it_ = std::move(other.end_it_);
+
+    begin_it_ = IteratorType{};
+    end_it_ = IteratorType{};
+  }
 
   auto begin() const -> IteratorType {
     return begin_it_;
@@ -24,8 +50,8 @@ public:
   }
 
 private:
-  IteratorType begin_it_;
-  IteratorType end_it_;
+  IteratorType begin_it_ {};
+  IteratorType end_it_ {};
 };
 
 template <typename RawIterator>

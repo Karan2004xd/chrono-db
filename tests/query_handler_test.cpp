@@ -1,8 +1,8 @@
 #include "gtest/gtest.h"
+#include <algorithm>
 #include "../include/query_handler.hpp"
 #include "../include/in_memory_storage.hpp"
 #include "../include/storage_factory.hpp"
-#include "../include/data.hpp"
 
 class QueryHandlerTest {
 public:
@@ -125,17 +125,66 @@ public:
 
   static auto get_data() -> void {
     auto obj = QueryHandler(StorageFactory::get_in_memory_storage());
-    std::vector<int> vec {1, 2, 5, 4};
+    auto timestamps = std::vector<int64_t> {0, 1, 2, 3};
+    auto data_list = std::vector<Data> {
+      Data("test1", "value1"), Data("test2", "value2"),
+      Data("test3", "value3"), Data("test4", "value4")
+    };
+    obj.insert({
+      {timestamps[0], { data_list[0].copy() } },
+      {timestamps[1], { data_list[1].copy() } },
+      {timestamps[2], { data_list[2].copy() } },
+      {timestamps[3], { data_list[3].copy() } },
+    });
 
-    auto result_data = obj.get_data_base_(1001, 1003, [](const Data &data) -> bool {
-      return data.get_timestamp() % 2 == 0;
-    }, 10);
+    // Columnar filtering
+    auto result_data = obj.get_data(0, 3, [](const Data &data) -> bool {
+      return data.get_tag() == "test1";
+    }, QueryHandler::RowOrder::ASC, 10);
 
-    for (const auto &[ts, data_list] : result_data) {
-      std::cout << ts << "\n\t";
-      for (const auto &data : data_list) {
-        std::cout << data.get().get_tag() << std::endl;
+    EXPECT_EQ(result_data.size(), 4);
+    EXPECT_EQ(result_data.front().second.size(), 1);
+    EXPECT_EQ(result_data[1].second.size(), 0);
+
+    verify_data_(timestamps, data_list, result_data);
+
+    // Row-wise filter
+    auto result_data_2 = obj.get_data(0, 3, [](int64_t ts) -> bool {
+      return ts > 0;
+    }, QueryHandler::RowOrder::DSC, 2);
+
+    EXPECT_EQ(result_data_2.size(), 2);
+
+    std::reverse(timestamps.begin(), timestamps.end());
+    std::reverse(data_list.begin(), data_list.end());
+
+    verify_data_(timestamps, data_list, result_data_2);
+
+    // No Filtering
+    auto result_data_3 = obj.get_data(0, 3, QueryHandler::RowOrder::ASC);
+    EXPECT_EQ(result_data_3.size(), 4);
+
+    for (size_t i = 0; i < 4; i++) {
+      EXPECT_EQ(result_data_3[i].second.size(), 1);
+    }
+  }
+
+private:
+  static auto verify_data_(const std::vector<int64_t> &timestamps,
+                           std::vector<Data> data_list,
+                           const QueryHandler::Row &row) -> void {
+
+    ASSERT_EQ(timestamps.size(), data_list.size());
+    ASSERT_FALSE(timestamps.empty());
+
+    auto i = 0;
+    for (const auto &[ts, data_ref_list] : row) {
+      EXPECT_EQ(timestamps[i], ts);
+      for (const auto &data_ref : data_ref_list) {
+        data_list[i].set_timestamp(ts);
+        EXPECT_TRUE(data_list[i] == data_ref.get());
       }
+      i++;
     }
   }
 };

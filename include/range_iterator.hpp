@@ -14,6 +14,8 @@ class RangeIterator : public Iterator {
   TEST_FRIEND(RangeIteratorTest);
 
 public:
+  RangeIterator() = default;
+
   RangeIterator(ConstIterator it, bool ascending)
     : iter_(it), ascending_(ascending) {}
 
@@ -25,10 +27,15 @@ public:
   }
 
   RangeIterator(RangeIterator &&other) noexcept {
-    ascending_ = std::move(other.ascending_);
+    ascending_ = other.ascending_;
     current_ = std::move(other.current_);
     views_ = std::move(other.views_);
     iter_ = std::move(other.iter_);
+
+    other.ascending_ = true;
+    other.current_ = {};
+    other.views_.clear();
+    other.iter_ = RangeDataIter{};
   }
 
   auto operator=(const RangeIterator &other) -> Iterator & {
@@ -36,13 +43,20 @@ public:
     current_ = other.current_;
     views_ = other.views_;
     iter_ = other.iter_;
+    return *this;
   }
 
   auto operator=(RangeIterator &&other) noexcept -> Iterator & {
-    ascending_ = std::move(other.ascending_);
+    ascending_ = other.ascending_;
     current_ = std::move(other.current_);
     views_ = std::move(other.views_);
     iter_ = std::move(other.iter_);
+
+    other.ascending_ = true;
+    other.current_ = {};
+    other.views_.clear();
+    other.iter_ = RangeDataIter{};
+    return *this;
   }
 
   auto operator!=(const Iterator &other) -> bool override {
@@ -73,7 +87,7 @@ public:
 
 private:
   ConstIterator iter_;
-  bool ascending_;
+  bool ascending_ = true;
   mutable Row current_;
   mutable DataViewList views_;
 

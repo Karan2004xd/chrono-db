@@ -1,9 +1,7 @@
 #pragma once
 
-#include "constant.hpp"
+#include "view.hpp"
 #include <functional>
-#include <memory>
-#include <vector>
 
 class Storage;
 class Data;
@@ -18,10 +16,20 @@ public:
   template <typename T>
   using ListOfValues = std::initializer_list<T>;
 
-  using DataView = std::reference_wrapper<Data>;
-  using DataViewList = std::vector<DataView>;
+  template <typename T>
+  using DataView = std::reference_wrapper<const T>;
+  using DataViewList = std::vector<DataView<Data>>;
 
   using Row = std::vector<std::pair<int64_t, DataViewList>>;
+
+  using PredicateForRow = std::function<bool(int64_t ts)>;
+  using PredicateForColumn = std::function<bool(const Data &)>;
+
+  using IteratorView = View<RangeIterator<RangeDataIter>>;
+
+  enum class RowOrder {
+    ASC, DSC
+  };
 
   template <typename T>
   QueryHandler(T &&db) {
@@ -52,33 +60,29 @@ public:
   auto erase(int64_t timestamp,
              const ListOfValues<std::string> &tag_names) noexcept -> void;
 
-  // template <typename Iterator, typename Func>
-  // auto filter(Iterator begin, Iterator end, Func &&func) -> void {
-  //   using traits = std::iterator_traits<Iterator>;
+  auto get_data(int64_t start_ts,
+                int64_t end_ts,
+                PredicateForRow &&func,
+                const RowOrder &order,
+                int limit = -1) const noexcept -> Row;
 
-  //   static_assert(!std::is_same_v<typename traits::value_type, void>,
-  //   "Iterator type is not a valid iterator (no value types)");
+  auto get_data(int64_t start_ts,
+                int64_t end_ts,
+                PredicateForColumn &&func,
+                const RowOrder &order,
+                int limit = -1) const noexcept -> Row;
 
-  //   static_assert(std::is_same_v<Iterator, decltype(end)>,
-  //   "begin and end iterators must have same types");
-
-  //   using func_value_type = typename std::iterator_traits<Iterator>::value_type;
-  //   static_assert(is_invocable_with_n_arg_<Func, func_value_type>::count <= 2,
-  //   "Func must take exactly one argument of the iterator's value type");
-  // }
+  auto get_data(int64_t start_ts,
+                int64_t end_ts,
+                const RowOrder &order,
+                int limit = -1) const noexcept -> Row;
 
 private:
   std::unique_ptr<Storage> db_ = nullptr;
-  using Predicate = std::function<bool(const DataView)>;
 
-  template <typename Func, typename... Args>
-  struct is_invocable_with_n_arg_ {
-    static constexpr bool value = std::is_invocable_r_v<bool, Func, Args...>;
-    static constexpr size_t count = sizeof...(Args);
-  };
-
-  auto get_data_base_(int64_t start_ts,
-                      int64_t end_ts,
-                      Predicate &&func,
-                      int limit = -1) const -> Row;
+  auto get_data_helper_(int64_t start_ts,
+                        int64_t end_ts,
+                        const RowOrder &order,
+                        int limit) const noexcept
+  -> std::tuple<bool, IteratorView, bool>;
 };

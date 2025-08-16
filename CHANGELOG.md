@@ -2,6 +2,20 @@
 
 All notable changes to this project will be documented in this file.
 
+## [Unreleased] - 2025-08-16
+### Added
+- Row and Column filter support with custom callback by the user.
+- Lazy loading of data instead of redundently creating a new container for each query.
+- Iterator and View support to get the snapshot of data without copying.
+
+### Changed
+- Data retrieval method from relying to copy of the list of data to using custom iterators.
+- The `Storage` class to an abstract class and the current implementation of `Storage` class to `InMemoryStorage`.
+- The Queryhandler now relies on passing a class of type `Storage`.
+
+### Fixed
+- The iterator tests failing issues revolving around inproper implementation of move constructor where the default state was not being set.
+
 ## [Unreleased] - 2025-08-14
 ### Added
 - QueryHandler added for handling user queries and using any underlying `Storage` class.

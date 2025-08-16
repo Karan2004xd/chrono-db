@@ -76,6 +76,85 @@ auto QueryHandler::erase(int64_t timestamp,
   }
 }
 
-auto QueryHandler::get_data_base_(int64_t start_ts, int64_t end_ts,
-                                  Predicate &&func, int limit) const -> Row {
+auto QueryHandler::get_data(int64_t start_ts,
+                            int64_t end_ts,
+                            PredicateForRow &&func,
+                            const RowOrder &order,
+                            int limit) const noexcept -> Row {
+
+  const auto &[ascending, data_view, limit_set] = 
+    get_data_helper_(start_ts, end_ts, order, limit);
+
+  auto row = Row{};
+
+  for (const auto &[ts, data_list] : data_view) {
+    if (limit_set && limit <= 0) break;
+
+    if (func(ts)) {
+      auto data_pair = std::make_pair(ts, data_list);
+      row.emplace_back(std::move(data_pair));
+    }
+    limit--;
+  }
+  return row;
+}
+
+auto QueryHandler::get_data(int64_t start_ts,
+                            int64_t end_ts,
+                            PredicateForColumn &&func,
+                            const RowOrder &order,
+                            int limit) const noexcept -> Row {
+
+  const auto &[ascending, data_view, limit_set] = 
+    get_data_helper_(start_ts, end_ts, order, limit);
+
+  auto row = Row{};
+
+  for (const auto &[ts, data_list] : data_view) {
+    if (limit_set && limit <= 0) break;
+    auto data_ref_list = std::vector<DataView<Data>>{};
+
+    for (const auto &data_ref : data_list) {
+      if (func(data_ref.get())) {
+        data_ref_list.emplace_back(data_ref);
+      }
+    }
+    auto data_pair = std::make_pair(ts, data_ref_list);
+    row.emplace_back(std::move(data_pair));
+    limit--;
+  }
+  return row;
+}
+auto QueryHandler::get_data(int64_t start_ts,
+                            int64_t end_ts,
+                            const RowOrder &order,
+                            int limit) const noexcept -> Row {
+
+  const auto &[ascending, data_view, limit_set] = 
+    get_data_helper_(start_ts, end_ts, order, limit);
+
+  auto row = Row{};
+
+  for (const auto &[ts, data_list] : data_view) {
+    if (limit_set && limit <= 0) break;
+
+    auto data_pair = std::make_pair(ts, data_list);
+    row.emplace_back(std::move(data_pair));
+
+    limit--;
+  }
+  return row;
+}
+
+auto QueryHandler::get_data_helper_(int64_t start_ts,
+                                    int64_t end_ts,
+                                    const RowOrder &order,
+                                    int limit) const noexcept
+  -> std::tuple<bool, IteratorView, bool> {
+
+  auto ascending = order == RowOrder::ASC ? true : false;
+  auto limit_set = limit < 0 ? false : true;
+  auto data_view = db_->get_data_view(start_ts, end_ts, ascending);
+
+  return std::tuple(ascending, data_view, limit_set);
 }

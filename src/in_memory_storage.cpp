@@ -71,8 +71,8 @@ auto InMemoryStorage::get_data_view(int64_t start_ts,
   auto end = data_rows_.upper_bound(end_ts);
 
   if (!ascending) {
-    start = data_rows_.upper_bound(start_ts);
-    end = data_rows_.lower_bound(end_ts);
+    start = data_rows_.lower_bound(end_ts);
+    end = data_rows_.lower_bound(start_ts);
   }
   auto data_view = make_data_view(start, end, ascending);
   return data_view;
